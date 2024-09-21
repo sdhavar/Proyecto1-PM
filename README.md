@@ -1,16 +1,19 @@
-# flutter_application_1
+# Mi Mejor Ser
 
-A new Flutter project.
+## Description
+"Mi Mejor Ser" is an innovative application aimed at promoting healthy habits in users through gamification. The app allows users to track their daily practices, whether boolean (like having breakfast) or quantifiable (like drinking water).
 
-## Getting Started
+## Features
+- **Habit Tracking**: Record and monitor your daily habits.
+- **Gamification**: Earn points and rewards for maintaining healthy habits.
+- **Statistics**: View your progress through detailed charts and statistics.
+- **Reminders**: Set alerts to ensure you don't forget important habits.
 
-This project is a starting point for a Flutter application.
+## Usage
+1. Register or log in to the application.
+2. Set up your daily habits.
+3. Track your habits and earn rewards.
+4. Review your progress and adjust your goals as needed.
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## License
+This project is licensed under the MIT License. See the LICENSE file for details.

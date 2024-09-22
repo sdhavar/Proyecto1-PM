@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'main_page.dart';
 import 'signup_page.dart';
+import 'package:flutter_application_1/controllers/login_controller.dart'; // Importamos el archivo de controladores
 
 void main() {
   runApp(LoginPage());
@@ -18,9 +19,6 @@ class LoginPage extends StatelessWidget {
 }
 
 class LoginScreen extends StatelessWidget {
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -94,14 +92,14 @@ class LoginScreen extends StatelessWidget {
               LoginInput(
                 icon: Icons.person,
                 hint: 'USERNAME',
-                controller: _usernameController,
+                controller: usernameController,
               ),
               SizedBox(height: 20),
               LoginInput(
                 icon: Icons.lock,
                 hint: 'PASSWORD',
                 obscureText: true,
-                controller: _passwordController,
+                controller: passwordController,
               ),
               SizedBox(height: 20),
               Row(

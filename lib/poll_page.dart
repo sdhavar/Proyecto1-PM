@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/controllers/login_controller.dart';
 import 'package:flutter_application_1/controllers/poll_controllers.dart';
 import 'main_page.dart';
 
@@ -172,10 +173,11 @@ class _PollPageState extends State<PollPage> {
                     SizedBox(height: 20),
                     InkWell(
                       onTap: () {
+                        String username = usernameController.text;
                         // Aquí puedes añadir la lógica para guardar las metas
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => MainPage()),
+                          MaterialPageRoute(builder: (context) => MainPage(username: username)),
                         );
                       },
                       borderRadius: BorderRadius.circular(25),

@@ -107,10 +107,16 @@ class LoginScreen extends StatelessWidget {
                 children: [
                   InkWell(
                     onTap: () {
-                      // Aquí puedes añadir la lógica de autenticación
+                      // Obtener el nombre de usuario desde el controlador
+                      String username = usernameController.text;
+
+                      // Aquí puedes añadir la lógica de autenticación si lo deseas
+
+                      // Navegar a MainPage pasando el username
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => MainPage()),
+                        MaterialPageRoute(
+                            builder: (context) => MainPage(username: username)),
                       );
                     },
                     borderRadius: BorderRadius.circular(25),
@@ -159,7 +165,11 @@ class LoginInput extends StatelessWidget {
   final bool obscureText;
   final TextEditingController controller;
 
-  LoginInput({required this.icon, required this.hint, this.obscureText = false, required this.controller});
+  LoginInput(
+      {required this.icon,
+      required this.hint,
+      this.obscureText = false,
+      required this.controller});
 
   @override
   Widget build(BuildContext context) {

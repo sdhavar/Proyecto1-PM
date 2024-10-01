@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'login_page.dart';
-import 'main_page.dart';
-import 'signup_page.dart';
-import 'poll_page.dart';
-import 'gamification_page.dart';
+import 'pages/login_page.dart';
+import 'pages/main_page.dart';
+import 'pages/signup_page.dart';
+import 'pages/poll_page.dart';
+import 'pages/gamification_page.dart';
 
 void main() {
   runApp(MyApp());

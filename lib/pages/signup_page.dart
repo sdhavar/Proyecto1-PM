@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'poll_page.dart';
+import 'package:flutter_application_1/controllers/signup_controller.dart';
 
 class SignupPage extends StatelessWidget {
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -105,18 +102,18 @@ class SignupPage extends StatelessWidget {
                   FormInput(
                     icon: Icons.person,
                     hint: 'USERNAME',
-                    controller: _usernameController,
+                    controller: usernameController,
                   ),
                   FormInput(
                     icon: Icons.lock,
                     hint: 'PASSWORD',
                     obscureText: true,
-                    controller: _passwordController,
+                    controller: passwordController,
                   ),
                   FormInput(
                     icon: Icons.email,
                     hint: 'EMAIL ADDRESS',
-                    controller: _emailController,
+                    controller: emailController,
                   ),
                   SizedBox(height: 20),
                   InkWell(

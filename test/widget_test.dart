@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_application_1/login_page.dart'; // Cambiado a login_page.dart
+import 'package:flutter_application_1/pages/login_page.dart'; // Cambiado a login_page.dart
 
 void main() {
   testWidgets('Login screen test', (WidgetTester tester) async {

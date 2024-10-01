@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 bool user_breakfast = false;
 bool user_smoke = false;
 bool user_alcohol = false;

@@ -2,7 +2,56 @@ import 'package:flutter/material.dart';
 import 'poll_page.dart';
 import 'package:flutter_application_1/controllers/signup_controller.dart';
 
-class SignupPage extends StatelessWidget {
+class SignupPage extends StatefulWidget {
+  @override
+  _SignupPageState createState() => _SignupPageState();
+}
+
+class _SignupPageState extends State<SignupPage> {
+  final _formKey = GlobalKey<FormState>();
+
+  // Controladores para los campos de texto
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+
+  // Validación de correo con dominios permitidos
+  String? validateEmail(String? value) {
+    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
+    final allowedDomains = ['gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com'];
+
+    if (value == null || value.isEmpty) {
+      return "Enter email address";
+    } else if (!emailRegex.hasMatch(value)) {
+      return "Enter a valid email address";
+    } else {
+      final domain = value.split('@').last;
+      if (!allowedDomains.contains(domain)) {
+        return "Email must be from gmail, hotmail, outlook, or yahoo";
+      }
+    }
+    return null;
+  }
+
+  // Validación de username y contraseña (mínimo 6 caracteres)
+  String? validateUsername(String? value) {
+    if (value == null || value.isEmpty) {
+      return "Enter username";
+    } else if (value.length < 6) {
+      return "Username must be at least 6 characters";
+    }
+    return null;
+  }
+
+  String? validatePassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return "Enter password";
+    } else if (value.length < 6) {
+      return "Password must be at least 6 characters";
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -88,54 +137,63 @@ class SignupPage extends StatelessWidget {
                   ),
                 ],
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'REGISTER',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  FormInput(
-                    icon: Icons.person,
-                    hint: 'USERNAME',
-                    controller: usernameController,
-                  ),
-                  FormInput(
-                    icon: Icons.lock,
-                    hint: 'PASSWORD',
-                    obscureText: true,
-                    controller: passwordController,
-                  ),
-                  FormInput(
-                    icon: Icons.email,
-                    hint: 'EMAIL ADDRESS',
-                    controller: emailController,
-                  ),
-                  SizedBox(height: 20),
-                  InkWell(
-                    onTap: () {
-                      // Aquí puedes añadir la lógica de registro
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => PollPage()),
-                      );
-                    },
-                    borderRadius: BorderRadius.circular(25),
-                    child: Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: Color(0xFF0D47A1),
-                        shape: BoxShape.circle,
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'REGISTER',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
                       ),
-                      child: Icon(Icons.check, color: Colors.white),
                     ),
-                  ),
-                ],
+                    SizedBox(height: 20),
+                    FormInput(
+                      icon: Icons.person,
+                      hint: 'USERNAME',
+                      controller: usernameController,
+                      validator: validateUsername,
+                    ),
+                    FormInput(
+                      icon: Icons.lock,
+                      hint: 'PASSWORD',
+                      obscureText: true,
+                      controller: passwordController,
+                      validator: validatePassword,
+                    ),
+                    FormInput(
+                      icon: Icons.email,
+                      hint: 'EMAIL ADDRESS',
+                      controller: emailController,
+                      validator: validateEmail,
+                    ),
+                    SizedBox(height: 20),
+                    InkWell(
+                      onTap: () {
+                        if (_formKey.currentState!.validate()) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PollPage(),
+                            ),
+                          );
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(25),
+                      child: Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: Color(0xFF0D47A1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(Icons.check, color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -150,8 +208,15 @@ class FormInput extends StatelessWidget {
   final String hint;
   final bool obscureText;
   final TextEditingController controller;
+  final String? Function(String?)? validator;
 
-  FormInput({required this.icon, required this.hint, this.obscureText = false, required this.controller});
+  FormInput({
+    required this.icon,
+    required this.hint,
+    this.obscureText = false,
+    required this.controller,
+    this.validator,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -167,7 +232,7 @@ class FormInput extends StatelessWidget {
           Icon(icon, color: Color(0xFFB0B0B0)),
           SizedBox(width: 10),
           Expanded(
-            child: TextField(
+            child: TextFormField(
               controller: controller,
               obscureText: obscureText,
               decoration: InputDecoration(
@@ -175,6 +240,7 @@ class FormInput extends StatelessWidget {
                 hintText: hint,
                 hintStyle: TextStyle(color: Color(0xFFB0B0B0)),
               ),
+              validator: validator,
             ),
           ),
         ],

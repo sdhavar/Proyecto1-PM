@@ -37,47 +37,47 @@ class DailyIntakePage extends StatelessWidget {
               // Campos de ingreso
               DailyIntakeInput(
                 hint: 'Calorías consumidas',
-                controller: user_caloriesController, // Usa el controlador importado
+                controller: user_caloriesController,
               ),
               SizedBox(height: 20),
               DailyIntakeInput(
                 hint: 'Meta de peso (subir/bajar)',
-                controller: user_weightGoalController, // Usa el controlador importado
+                controller: user_weightGoalController,
               ),
               SizedBox(height: 20),
               DailyIntakeInput(
                 hint: 'Pasos dados hoy',
-                controller: user_stepsController, // Usa el controlador importado
+                controller: user_stepsController,
               ),
               SizedBox(height: 20),
               DailyIntakeInput(
                 hint: 'Litros de agua consumidos',
-                controller: user_waterIntakeController, // Usa el controlador importado
+                controller: user_waterIntakeController,
               ),
               SizedBox(height: 20),
               DailyIntakeInput(
                 hint: 'Horas de sueño',
-                controller: user_sleepHoursController, // Usa el controlador importado
+                controller: user_sleepHoursController,
               ),
               SizedBox(height: 20),
               DailyIntakeInput(
                 hint: 'Minutos de ejercicio',
-                controller: user_exerciseMinutesController, // Usa el controlador importado
+                controller: user_exerciseMinutesController,
               ),
               SizedBox(height: 20),
               DailyIntakeInput(
                 hint: 'Minutos de meditación',
-                controller: user_meditationMinutesController, // Usa el controlador importado
+                controller: user_meditationMinutesController,
               ),
               SizedBox(height: 20),
               DailyIntakeInput(
                 hint: 'Porciones de fruta',
-                controller: user_fruitIntakeController, // Usa el controlador importado
+                controller: user_fruitIntakeController,
               ),
               SizedBox(height: 20),
               DailyIntakeInput(
                 hint: 'Porciones de vegetales',
-                controller: user_vegetableIntakeController, // Usa el controlador importado
+                controller: user_vegetableIntakeController,
               ),
             ],
           ),
@@ -97,16 +97,20 @@ class DailyIntakeInput extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
-      style: TextStyle(color: Colors.white), // Estilo del texto
+      style: TextStyle(color: Colors.white),
       decoration: InputDecoration(
         border: OutlineInputBorder(),
         labelText: hint,
-        labelStyle: TextStyle(color: const Color.fromARGB(179, 255, 255, 255)), // Estilo de la etiqueta
+        labelStyle: TextStyle(
+            color: const Color.fromARGB(
+                179, 255, 255, 255)), 
         enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: const Color.fromARGB(179, 255, 255, 255)), // Borde blanco
+          borderSide: BorderSide(
+              color: const Color.fromARGB(179, 255, 255, 255)),
         ),
         focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.greenAccent), // Borde verde al enfocar
+          borderSide:
+              BorderSide(color: Colors.greenAccent),
         ),
       ),
     );

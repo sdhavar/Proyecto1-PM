@@ -28,23 +28,26 @@ class _GamificationPageState extends State<GamificationPage> {
   void calculatePoints() {
     int points = 0;
 
-    // Asignamos puntos según las respuestas de la encuesta
+    // Asignamos puntos según las respuestas de la encuesta (simulados aquí)
     if (user_breakfast) points += 10;
     if (!user_smoke) points += 20;
     if (!user_alcohol) points += 15;
     if (!user_junkFood) points += 10;
     if (user_stressManagement) points += 25;
 
+    // Actualiza el estado del widget con los puntos calculados
     setState(() {
       userPoints = points;
-    });
 
-    // Verificar si se alcanzó la meta de puntos
-    if (userPoints >= goalPoints) {
-      setState(() {
-        reward = "¡Felicidades! Has ganado una medalla por tu progreso saludable 🎖️";
-      });
-    }
+      // Verificar si se alcanzó la meta de puntos
+      if (userPoints >= goalPoints) {
+        reward =
+            "¡Felicidades! Has ganado una medalla por tu progreso saludable 🎖️";
+      } else {
+        reward =
+            ""; // Si los puntos son menores, aseguramos que el mensaje esté vacío
+      }
+    });
   }
 
   @override
@@ -132,12 +135,14 @@ class _GamificationPageState extends State<GamificationPage> {
                   SizedBox(height: 20),
                   Center(
                     child: LinearProgressIndicator(
-                      value: userPoints / goalPoints,
+                      value:
+                          userPoints / goalPoints, // Valor de progreso actual
                       backgroundColor: Colors.white,
                       color: Colors.greenAccent,
                       minHeight: 10,
                     ),
                   ),
+
                   SizedBox(height: 10),
                   Center(
                     child: Text(
@@ -156,16 +161,20 @@ class _GamificationPageState extends State<GamificationPage> {
                   ),
                   SizedBox(height: 20),
                   // Sección de criterios de puntos con botones para reclamar
-                  _buildPointCriteria('Desayunar todos los días', user_breakfast, 10),
+                  _buildPointCriteria(
+                      'Desayunar todos los días', user_breakfast, 10),
                   _buildClaimButton(user_breakfast, 'Reclamar Puntos', 10),
                   _buildPointCriteria('No fumar', !user_smoke, 20),
                   _buildClaimButton(!user_smoke, 'Reclamar Puntos', 20),
                   _buildPointCriteria('No consumir alcohol', !user_alcohol, 15),
                   _buildClaimButton(!user_alcohol, 'Reclamar Puntos', 15),
-                  _buildPointCriteria('No consumir comida chatarra', !user_junkFood, 10),
+                  _buildPointCriteria(
+                      'No consumir comida chatarra', !user_junkFood, 10),
                   _buildClaimButton(!user_junkFood, 'Reclamar Puntos', 10),
-                  _buildPointCriteria('Gestionar el estrés', user_stressManagement, 25),
-                  _buildClaimButton(user_stressManagement, 'Reclamar Puntos', 25),
+                  _buildPointCriteria(
+                      'Gestionar el estrés', user_stressManagement, 25),
+                  _buildClaimButton(
+                      user_stressManagement, 'Reclamar Puntos', 25),
                   SizedBox(height: 40),
                   Divider(color: Colors.white60),
                   Text(
@@ -177,12 +186,17 @@ class _GamificationPageState extends State<GamificationPage> {
                     ),
                   ),
                   SizedBox(height: 20),
-                  _buildQuantitativeGoal('Consumo de Agua (litros)', userWaterIntake, waterGoal, 10),
-                  _buildClaimButton(userWaterIntake >= waterGoal, 'Reclamar Puntos', 10),
-                  _buildQuantitativeGoal('Calorías Consumidas', userCalories, calorieGoal, 20),
-                  _buildClaimButton(userCalories >= calorieGoal, 'Reclamar Puntos', 20),
+                  _buildQuantitativeGoal('Consumo de Agua (litros)',
+                      userWaterIntake, waterGoal, 10),
+                  _buildClaimButton(
+                      userWaterIntake >= waterGoal, 'Reclamar Puntos', 10),
+                  _buildQuantitativeGoal(
+                      'Calorías Consumidas', userCalories, calorieGoal, 20),
+                  _buildClaimButton(
+                      userCalories >= calorieGoal, 'Reclamar Puntos', 20),
                   SizedBox(height: 40),
-                  if (reward.isNotEmpty)
+                  if (reward
+                      .isNotEmpty) // Si hay recompensa, mostrar el mensaje
                     Center(
                       child: Column(
                         children: [
@@ -207,7 +221,8 @@ class _GamificationPageState extends State<GamificationPage> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(25),
                               ),
-                              padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 30, vertical: 15),
                             ),
                             child: Text('Reiniciar Progreso'),
                           ),
@@ -265,13 +280,15 @@ class _GamificationPageState extends State<GamificationPage> {
     );
   }
 
-  Widget _buildQuantitativeGoal(String label, double currentValue, double goalValue, int points) {
+  Widget _buildQuantitativeGoal(
+      String label, double currentValue, double goalValue, int points) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('$label (+$points pts)', style: TextStyle(color: Colors.white70, fontSize: 18)),
+          Text('$label (+$points pts)',
+              style: TextStyle(color: Colors.white70, fontSize: 18)),
           SizedBox(height: 5),
           LinearProgressIndicator(
             value: currentValue / goalValue,

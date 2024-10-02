@@ -19,6 +19,9 @@ class LoginPage extends StatelessWidget {
 }
 
 class LoginScreen extends StatelessWidget {
+  // Clave global para manejar el estado del formulario
+  final _formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -77,81 +80,104 @@ class LoginScreen extends StatelessWidget {
         ),
         // Contenido del login
         Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'LOGIN',
-                style: TextStyle(
-                  fontSize: 32,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+          child: Form(
+            key: _formKey, // Asociamos el Form a la clave global
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'LOGIN',
+                  style: TextStyle(
+                    fontSize: 32,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              SizedBox(height: 40),
-              LoginInput(
-                icon: Icons.person,
-                hint: 'USERNAME',
-                controller: usernameController,
-              ),
-              SizedBox(height: 20),
-              LoginInput(
-                icon: Icons.lock,
-                hint: 'PASSWORD',
-                obscureText: true,
-                controller: passwordController,
-              ),
-              SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  InkWell(
-                    onTap: () {
-                      // Obtener el nombre de usuario desde el controlador
-                      String username = usernameController.text;
+                SizedBox(height: 40),
+                LoginInput(
+                  icon: Icons.person,
+                  hint: 'USERNAME',
+                  controller: usernameController,
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return "Enter username";
+                    } else if (value.length < 6) { // Cambio: mínimo 6 caracteres
+                      return "Username must have at least 6 characters";
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 20),
+                LoginInput(
+                  icon: Icons.lock,
+                  hint: 'PASSWORD',
+                  obscureText: true,
+                  controller: passwordController,
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return "Enter password";
+                    } else if (value.length < 6) { // Cambio: mínimo 6 caracteres
+                      return "Password must have at least 6 characters";
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        // Validamos el formulario
+                        if (_formKey.currentState!.validate()) {
+                          String username = usernameController.text;
 
-                      // Aquí puedes añadir la lógica de autenticación si lo deseas
+                          // Aquí puedes añadir la lógica de autenticación si lo deseas
 
-                      // Navegar a MainPage pasando el username
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => MainPage(username: username)),
-                      );
-                    },
-                    borderRadius: BorderRadius.circular(25),
-                    child: Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: Color(0xFF2c2c54),
-                        shape: BoxShape.circle,
+                          // Navegar a MainPage pasando el username
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    MainPage(username: username)),
+                          );
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(25),
+                      child: Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: Color(0xFF2c2c54),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(Icons.check, color: Colors.white),
                       ),
-                      child: Icon(Icons.check, color: Colors.white),
                     ),
-                  ),
-                  SizedBox(width: 20),
-                  InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => SignupPage()),
-                      );
-                    },
-                    borderRadius: BorderRadius.circular(25),
-                    child: Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: Color(0xFF2c2c54),
-                        shape: BoxShape.circle,
+                    SizedBox(width: 20),
+                    InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => SignupPage()),
+                        );
+                      },
+                      borderRadius: BorderRadius.circular(25),
+                      child: Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: Color(0xFF2c2c54),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(Icons.person_add, color: Colors.white),
                       ),
-                      child: Icon(Icons.person_add, color: Colors.white),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ],
@@ -164,12 +190,15 @@ class LoginInput extends StatelessWidget {
   final String hint;
   final bool obscureText;
   final TextEditingController controller;
+  final String? Function(String?) validator;
 
-  LoginInput(
-      {required this.icon,
-      required this.hint,
-      this.obscureText = false,
-      required this.controller});
+  LoginInput({
+    required this.icon,
+    required this.hint,
+    this.obscureText = false,
+    required this.controller,
+    required this.validator,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -192,7 +221,7 @@ class LoginInput extends StatelessWidget {
           Icon(icon, color: Colors.grey),
           SizedBox(width: 10),
           Expanded(
-            child: TextField(
+            child: TextFormField(
               controller: controller,
               obscureText: obscureText,
               decoration: InputDecoration(
@@ -200,6 +229,7 @@ class LoginInput extends StatelessWidget {
                 hintText: hint,
                 hintStyle: TextStyle(color: Colors.grey),
               ),
+              validator: validator, // Aquí añadimos la validación
             ),
           ),
         ],

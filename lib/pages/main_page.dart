@@ -3,10 +3,116 @@ import 'gamification_page.dart';
 import 'survey_page.dart';
 import 'daily_intake_page.dart';
 
-class MainPage extends StatelessWidget {
+class MainPage extends StatefulWidget {
   final String username;
 
   MainPage({required this.username});
+
+  @override
+  _MainPageState createState() => _MainPageState();
+}
+
+class _MainPageState extends State<MainPage> {
+  final List<Map<String, dynamic>> userStats = [
+    {'title': 'Sueño', 'value': 0},
+    {'title': 'Agua', 'value': 0},
+    {'title': 'Caminata', 'value': 0},
+    {'title': 'Peso', 'value': 0},
+    {'title': 'Calorías', 'value': 0},
+  ];
+
+  int _currentIndex = 0;
+
+  void _addGoal(String type, String name, int quantity) {
+    // Aquí puedes agregar la lógica para manejar la adición de metas
+    setState(() {
+      if (type == 'Específica') {
+        userStats.add({'title': name, 'value': quantity});
+      } else {
+        userStats.add({'title': 'Meta Genérica', 'value': quantity}); // Cambiar según las opciones predefinidas
+      }
+    });
+    Navigator.of(context).pop(); // Cerrar el diálogo
+  }
+
+  void _showAddGoalDialog() {
+    String selectedType = 'Específica';
+    String goalName = '';
+    int goalQuantity = 0;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Añadir Meta'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DropdownButton<String>(
+                value: selectedType,
+                onChanged: (String? newValue) {
+                  setState(() {
+                    selectedType = newValue!;
+                  });
+                },
+                items: <String>['Específica', 'Genérica']
+                    .map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+              ),
+              if (selectedType == 'Específica') ...[
+                TextField(
+                  onChanged: (value) {
+                    goalName = value;
+                  },
+                  decoration: InputDecoration(labelText: 'Nombre de la Meta'),
+                ),
+              ] else ...[
+                DropdownButton<String>(
+                  onChanged: (String? newValue) {
+                    // Cambiar según las opciones predefinidas
+                  },
+                  items: <String>['Opción 1', 'Opción 2']
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                ),
+              ],
+              TextField(
+                onChanged: (value) {
+                  goalQuantity = int.tryParse(value) ?? 0;
+                },
+                decoration: InputDecoration(labelText: 'Cantidad de la Meta'),
+                keyboardType: TextInputType.number,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                if (goalName.isNotEmpty || selectedType == 'Genérica') {
+                  _addGoal(selectedType, goalName, goalQuantity);
+                }
+              },
+              child: Text('Añadir'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancelar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +179,7 @@ class MainPage extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Hola, $username',
+                              'Hola, ${widget.username}',
                               style: TextStyle(
                                 fontSize: 36,
                                 fontWeight: FontWeight.bold,
@@ -83,7 +189,7 @@ class MainPage extends StatelessWidget {
                             ),
                             SizedBox(height: 10),
                             Text(
-                              'Aquí puedes llevar un control diario de tus consumos y ganar recompensas por tus hábitos saludables.',
+                              'Sigue avanzando y mantente saludable.',
                               textAlign: TextAlign.left,
                               style: TextStyle(fontSize: 18, color: Colors.white),
                             ),
@@ -104,94 +210,144 @@ class MainPage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 80), // Aumentar el espacio para bajar los contenedores
-                  // Contenedores centrados
-                  Center(
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            CustomContainer(
-                              text: 'Gamificación',
-                              icon: Icons.star,
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => GamificationPage()),
-                                );
-                              },
-                            ),
-                            CustomContainer(
-                              text: 'Encuesta Diaria',
-                              icon: Icons.poll,
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => SurveyPage()),
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 20),
-                        CustomContainer(
-                          text: 'Registro Diario',
-                          icon: Icons.book,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => DailyIntakePage()),
-                            );
-                          },
+                  SizedBox(height: 40),
+                  // Tarjeta de estadísticas
+                  Container(
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.5),
+                          spreadRadius: 3,
+                          blurRadius: 7,
+                          offset: Offset(0, 3),
                         ),
                       ],
                     ),
+                    child: Column(
+                      children: [
+                        Text(
+                          'Estadísticas',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        Container(
+                          height: 100,
+                          child: ListView.builder(
+                            itemCount: userStats.length,
+                            scrollDirection: Axis.horizontal,
+                            itemBuilder: (context, index) {
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Container(
+                                  width: 100,
+                                  padding: EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: Color(0xFF034f84),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        userStats[index]['title'],
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                      SizedBox(height: 5),
+                                      Text(
+                                        '${userStats[index]['value']}',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        ElevatedButton(
+                          onPressed: _showAddGoalDialog,
+                          child: Text('+ Añadir Meta'),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  // Tarjetas de actividad (cambiado a Metas)
+                  Container(
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.5),
+                          spreadRadius: 3,
+                          blurRadius: 7,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Metas',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        Column(
+                          children: userStats.map((goal) {
+                            return ListTile(
+                              title: Text(goal['title']),
+                              trailing: Text('${goal['value']}'),
+                            );
+                          }).toList(),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  // Botón para gamificación
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => GamificationPage()),
+                      );
+                    },
+                    child: Text('Ir a Gamificación'),
                   ),
                   SizedBox(height: 20),
                 ],
               ),
             ),
           ),
-          // Barra inferior
+          // Footer
           Positioned(
             bottom: 0,
             left: 0,
             right: 0,
             child: Container(
-              color: Colors.grey[200],
-              padding: EdgeInsets.symmetric(vertical: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Column(
-                    children: [
-                      Icon(Icons.home, color: Colors.grey[700]),
-                      Text(
-                        'Home',
-                        style: TextStyle(
-                          color: Colors.blue[700],
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      Icon(Icons.settings, color: Colors.grey[700]),
-                      Text(
-                        'Settings',
-                        style: TextStyle(
-                          color: Colors.blue[700],
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+              padding: EdgeInsets.all(16),
+              color: Color(0xFF034f84),
+              child: Text(
+                '© 2024 Tu App de Salud',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.white),
               ),
             ),
           ),
@@ -201,52 +357,11 @@ class MainPage extends StatelessWidget {
   }
 }
 
-// Widget personalizado para los contenedores
-class CustomContainer extends StatelessWidget {
-  final String text;
-  final IconData icon;
-  final VoidCallback onTap;
-
-  CustomContainer({required this.text, required this.icon, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 150, // Ancho fijo para todos los contenedores
-        height: 150, // Alto fijo para todos los contenedores
-        padding: EdgeInsets.symmetric(horizontal: 28, vertical: 14),
-        decoration: BoxDecoration(
-          color: Color(0xFF034f84), // Color del contenedor
-          borderRadius: BorderRadius.circular(20), // Bordes redondeados
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: Colors.white, size: 48),
-            SizedBox(height: 10),
-            Text(
-              text,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18, // Cambié el tamaño de la fuente
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// Círculos decorativos (ya estaban en el código)
 class Circle extends StatelessWidget {
   final double diameter;
   final Color color;
 
-  Circle({required this.diameter, required this.color});
+  const Circle({required this.diameter, required this.color});
 
   @override
   Widget build(BuildContext context) {

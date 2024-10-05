@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'poll_page.dart';
 import 'package:flutter_application_1/controllers/signup_controller.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // Importa SharedPreferences
 
 class SignupPage extends StatefulWidget {
   @override
@@ -50,6 +51,13 @@ class _SignupPageState extends State<SignupPage> {
       return "Password must be at least 6 characters";
     }
     return null;
+  }
+
+  // Función para registrar usuario
+  Future<void> registerUser(String username, String password) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('username', username);
+    await prefs.setString('password', password);
   }
 
   @override
@@ -171,9 +179,13 @@ class _SignupPageState extends State<SignupPage> {
                     ),
                     SizedBox(height: 20),
                     InkWell(
-                      onTap: () {
+                      onTap: () async {
                         if (_formKey.currentState!.validate()) {
-                          Navigator.push(
+                          // Guardar credenciales
+                          await registerUser(usernameController.text, passwordController.text);
+                          
+                          // Navegar a PollPage
+                          Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
                               builder: (context) => PollPage(),

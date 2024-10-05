@@ -3,8 +3,10 @@ import 'package:flutter_application_1/controllers/login_controller.dart';
 import 'package:flutter_application_1/controllers/poll_controllers.dart';
 import 'main_page.dart';
 
-
 class PollPage extends StatefulWidget {
+
+  
+
   @override
   _PollPageState createState() => _PollPageState();
 }
@@ -173,12 +175,16 @@ class _PollPageState extends State<PollPage> {
                     SizedBox(height: 20),
                     InkWell(
                       onTap: () {
-                        String username = usernameController.text;
-                        // Aquí puedes añadir la lógica para guardar las metas
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => MainPage(username: username)),
-                        );
+                        if (_validateInputs()) {
+                          String username = usernameController.text;
+                          // Aquí puedes añadir la lógica para guardar las metas
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => MainPage(username: username)),
+                          );
+                        } else {
+                          _showValidationError(context);
+                        }
                       },
                       borderRadius: BorderRadius.circular(25),
                       child: Container(
@@ -198,6 +204,43 @@ class _PollPageState extends State<PollPage> {
           ),
         ],
       ),
+    );
+  }
+
+  bool _validateInputs() {
+    // Verificar que todos los campos de texto tengan datos
+    if (_controllers.caloriesController.text.isEmpty ||
+        _controllers.weightGoalController.text.isEmpty ||
+        _controllers.stepsController.text.isEmpty ||
+        _controllers.waterIntakeController.text.isEmpty ||
+        _controllers.sleepHoursController.text.isEmpty ||
+        _controllers.exerciseMinutesController.text.isEmpty ||
+        _controllers.meditationMinutesController.text.isEmpty ||
+        _controllers.fruitIntakeController.text.isEmpty ||
+        _controllers.vegetableIntakeController.text.isEmpty) {
+      return false;
+    }
+
+    return true;
+  }
+
+  void _showValidationError(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Error de Validación'),
+          content: Text('Por favor, completa todos los campos antes de continuar.'),
+          actions: [
+            TextButton(
+              child: Text('Aceptar'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -264,9 +307,8 @@ class PollInput extends StatelessWidget {
             child: TextField(
               controller: controller,
               decoration: InputDecoration(
-                border: InputBorder.none,
                 hintText: hint,
-                hintStyle: TextStyle(color: Colors.grey, fontSize: 12),
+                border: InputBorder.none,
               ),
             ),
           ),
@@ -280,7 +322,10 @@ class Circle extends StatelessWidget {
   final double diameter;
   final Color color;
 
-  Circle({required this.diameter, required this.color});
+  const Circle({
+    required this.diameter,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -288,8 +333,8 @@ class Circle extends StatelessWidget {
       width: diameter,
       height: diameter,
       decoration: BoxDecoration(
-        color: color,
         shape: BoxShape.circle,
+        color: color,
       ),
     );
   }

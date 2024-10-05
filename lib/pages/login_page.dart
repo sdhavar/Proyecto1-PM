@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // Importamos SharedPreferences
 import 'main_page.dart';
 import 'signup_page.dart';
-import 'package:flutter_application_1/controllers/login_controller.dart'; // Importamos el archivo de controladores
 
 void main() {
   runApp(LoginPage());
@@ -18,9 +18,62 @@ class LoginPage extends StatelessWidget {
   }
 }
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  // Controladores para los campos de entrada
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
   // Clave global para manejar el estado del formulario
   final _formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCredentials(); // Cargar las credenciales guardadas
+  }
+
+  // Cargar las credenciales desde SharedPreferences
+  void _loadCredentials() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? username = prefs.getString('username');
+    String? password = prefs.getString('password');
+
+    if (username != null && password != null) {
+      usernameController.text = username;
+      passwordController.text = password;
+    }
+  }
+
+  // Guardar las credenciales en SharedPreferences
+  void _saveCredentials(String username, String password) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('username', username);
+    await prefs.setString('password', password);
+  }
+
+  // Validar las credenciales al iniciar sesión
+  Future<bool> _validateLogin(String username, String password) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? storedUsername = prefs.getString('username');
+    String? storedPassword = prefs.getString('password');
+
+    if (storedUsername == null || storedPassword == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("No account found. Please sign up."),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return false;
+    }
+
+    return username == storedUsername && password == storedPassword;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +154,7 @@ class LoginScreen extends StatelessWidget {
                   validator: (value) {
                     if (value!.isEmpty) {
                       return "Enter username";
-                    } else if (value.length < 6) { // Cambio: mínimo 6 caracteres
+                    } else if (value.length < 6) {
                       return "Username must have at least 6 characters";
                     }
                     return null;
@@ -116,7 +169,7 @@ class LoginScreen extends StatelessWidget {
                   validator: (value) {
                     if (value!.isEmpty) {
                       return "Enter password";
-                    } else if (value.length < 6) { // Cambio: mínimo 6 caracteres
+                    } else if (value.length < 6) {
                       return "Password must have at least 6 characters";
                     }
                     return null;
@@ -127,20 +180,32 @@ class LoginScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     InkWell(
-                      onTap: () {
+                      onTap: () async {
                         // Validamos el formulario
                         if (_formKey.currentState!.validate()) {
                           String username = usernameController.text;
+                          String password = passwordController.text;
 
-                          // Aquí puedes añadir la lógica de autenticación si lo deseas
+                          // Validar las credenciales
+                          bool isValid = await _validateLogin(username, password);
 
-                          // Navegar a MainPage pasando el username
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    MainPage(username: username)),
-                          );
+                          if (isValid) {
+                            // Navegar a MainPage pasando el username
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      MainPage(username: username)),
+                            );
+                          } else {
+                            // Mostrar mensaje de error
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text("Invalid username or password"),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
                         }
                       },
                       borderRadius: BorderRadius.circular(25),

@@ -96,8 +96,14 @@ class _MainPageState extends State<MainPage> {
           actions: [
             TextButton(
               onPressed: () {
-                if (goalName.isNotEmpty || selectedType == 'Genérica') {
+                if ((selectedType == 'Específica' && goalName.isNotEmpty && goalQuantity > 0) ||
+                    (selectedType == 'Genérica' && goalQuantity > 0)) {
                   _addGoal(selectedType, goalName, goalQuantity);
+                } else {
+                  // Mostrar un mensaje de error
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Por favor, completa todos los campos correctamente.')),
+                  );
                 }
               },
               child: Text('Añadir'),
@@ -331,23 +337,7 @@ class _MainPageState extends State<MainPage> {
                     },
                     child: Text('Ir a Gamificación'),
                   ),
-                  SizedBox(height: 20),
                 ],
-              ),
-            ),
-          ),
-          // Footer
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              padding: EdgeInsets.all(16),
-              color: Color(0xFF034f84),
-              child: Text(
-                '© 2024 Tu App de Salud',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white),
               ),
             ),
           ),
@@ -357,17 +347,18 @@ class _MainPageState extends State<MainPage> {
   }
 }
 
+// Widget para crear círculos decorativos
 class Circle extends StatelessWidget {
   final double diameter;
   final Color color;
 
-  const Circle({required this.diameter, required this.color});
+  Circle({required this.diameter, required this.color});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: diameter,
       height: diameter,
+      width: diameter,
       decoration: BoxDecoration(
         color: color,
         shape: BoxShape.circle,

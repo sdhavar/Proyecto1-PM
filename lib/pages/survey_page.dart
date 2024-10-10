@@ -78,16 +78,69 @@ class _SurveyPageState extends State<SurveyPage> {
                   controller: user_weightGoalController,
                 ),
                 SizedBox(height: 40),
+
+                // Nueva sección con switches (preguntas booleanas)
+                BooleanQuestion(
+                  question: '¿Realizas alguna actividad física diariamente?',
+                  value: user_physicalActivity,
+                  onChanged: (newValue) {
+                    setState(() {
+                      user_physicalActivity = newValue;
+                    });
+                  },
+                ),
+                BooleanQuestion(
+                  question: '¿Consumes frutas y verduras todos los días?',
+                  value: user_fruitsVegetables,
+                  onChanged: (newValue) {
+                    setState(() {
+                      user_fruitsVegetables = newValue;
+                    });
+                  },
+                ),
+                BooleanQuestion(
+                  question: '¿Evitas el consumo de alimentos procesados?',
+                  value: user_avoidProcessedFood,
+                  onChanged: (newValue) {
+                    setState(() {
+                      user_avoidProcessedFood = newValue;
+                    });
+                  },
+                ),
+                BooleanQuestion(
+                  question: '¿Consumes bebidas alcohólicas regularmente?',
+                  value: user_alcoholConsumption,
+                  onChanged: (newValue) {
+                    setState(() {
+                      user_alcoholConsumption = newValue;
+                    });
+                  },
+                ),
+                BooleanQuestion(
+                  question: '¿Te sientes estresado con frecuencia?',
+                  value: user_stressedFrequently,
+                  onChanged: (newValue) {
+                    setState(() {
+                      user_stressedFrequently = newValue;
+                    });
+                  },
+                ),
+
+                SizedBox(height: 40),
                 ElevatedButton(
                   onPressed: () {
-                    // Aquí puedes añadir la lógica para procesar los datos ingresados
-                    // Envía los datos de la encuesta de vuelta a la MainPage
+                    // Envía los datos de la encuesta de vuelta a la MainPage, incluyendo las respuestas booleanas
                     Navigator.pop(context, {
                       'sleepHours': user_sleepHoursController.text,
                       'waterIntake': user_waterIntakeController.text,
                       'steps': user_stepsController.text,
                       'calories': user_caloriesController.text,
                       'weightGoal': user_weightGoalController.text,
+                      'exercise': user_physicalActivity,
+                      'fruitsVeggies': user_fruitsVegetables,
+                      'junkFood': user_avoidProcessedFood,
+                      'alcohol': user_alcoholConsumption,
+                      'stress': user_stressedFrequently,
                     });
                   },
                   child: Text('Guardar y Continuar'),
@@ -125,6 +178,37 @@ class DailyIntakeInput extends StatelessWidget {
           borderSide: BorderSide(color: Colors.greenAccent),
         ),
       ),
+    );
+  }
+}
+
+// Componente reutilizable para preguntas booleanas con Switch
+class BooleanQuestion extends StatelessWidget {
+  final String question;
+  final bool value;
+  final Function(bool) onChanged;
+
+  BooleanQuestion(
+      {required this.question, required this.value, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          question,
+          style: TextStyle(
+            fontSize: 18,
+            color: Colors.white,
+          ),
+        ),
+        Switch(
+          value: value,
+          onChanged: onChanged,
+          activeColor: Colors.greenAccent,
+        ),
+      ],
     );
   }
 }

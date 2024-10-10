@@ -10,8 +10,8 @@ final TextEditingController user_meditationMinutesController = TextEditingContro
 final TextEditingController user_fruitIntakeController = TextEditingController();
 final TextEditingController user_vegetableIntakeController = TextEditingController();
 
-bool user_breakfast = false;
-bool user_smoke = false;
-bool user_alcohol = false;
-bool user_junkFood = false;
-bool user_stressManagement = false;
+bool user_physicalActivity = false;
+bool user_fruitsVegetables = false;
+bool user_avoidProcessedFood = false;
+bool user_alcoholConsumption = false;
+bool user_stressedFrequently = false;

@@ -21,13 +21,35 @@ class _MainPageState extends State<MainPage> {
   int goalQuantity = 0;
   bool goalCompleted = false;
 
-  void _updateUserStats(Map<String, String> newStats) {
+  void _updateUserStats(Map<String, dynamic> newStats) {
     setState(() {
       userStats[0]['value'] = int.tryParse(newStats['sleepHours'] ?? '0') ?? 0;
       userStats[1]['value'] = int.tryParse(newStats['waterIntake'] ?? '0') ?? 0;
       userStats[2]['value'] = int.tryParse(newStats['steps'] ?? '0') ?? 0;
       userStats[3]['value'] = int.tryParse(newStats['weightGoal'] ?? '0') ?? 0;
       userStats[4]['value'] = int.tryParse(newStats['calories'] ?? '0') ?? 0;
+
+      // Añadir respuestas booleanas a las estadísticas
+      userStats.add({
+        'title': 'Act. Fis. diaria',
+        'value': newStats['exercise'] == true ? '✔️' : '❌'
+      });
+      userStats.add({
+        'title': 'Cons. Fru./Ver.',
+        'value': newStats['fruitsVeggies'] == true ? '✔️' : '❌'
+      });
+      userStats.add({
+        'title': 'Evita alim. proc.',
+        'value': newStats['junkFood'] == true ? '✔️' : '❌'
+      });
+      userStats.add({
+        'title': 'Consume Alc.',
+        'value': newStats['alcohol'] == true ? '✔️' : '❌'
+      });
+      userStats.add({
+        'title': 'Estres freq.',
+        'value': newStats['stress'] == true ? '✔️' : '❌'
+      });
     });
   }
 
@@ -237,7 +259,15 @@ class _MainPageState extends State<MainPage> {
               children: userStats
                   .map((goal) => ListTile(
                       title: Text(goal['title']),
-                      trailing: Text('${goal['value']}')))
+                      trailing: Text('${goal['value']}',
+                          style: TextStyle(
+                              color: goal['value'] == '✔️'
+                                  ? Colors.green
+                                  : goal['value'] == '❌'
+                                      ? Colors.red
+                                      : Colors
+                                          .black, // Cambia el color según la respuesta
+                              fontSize: 18))))
                   .toList(),
             ),
           ],

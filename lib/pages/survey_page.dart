@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/controllers/survey_controller.dart'; // Importa los controladores
+import 'package:flutter_application_1/controllers/survey_controller.dart'; // Importa los controladores de la encuesta
 
 class SurveyPage extends StatefulWidget {
   @override
@@ -11,14 +11,15 @@ class _SurveyPageState extends State<SurveyPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Encuesta de Salud'),
+        title: Text('Encuesta de Salud y Registro de Ingesta Diaria'),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pop(context); // Navega hacia atrás
           },
         ),
-        backgroundColor: Color.fromARGB(255, 255, 255, 255), // Color de fondo del AppBar
+        backgroundColor:
+            Color.fromARGB(255, 255, 255, 255), // Color de fondo del AppBar
       ),
       body: Stack(
         children: [
@@ -52,55 +53,44 @@ class _SurveyPageState extends State<SurveyPage> {
                   ),
                 ),
                 SizedBox(height: 40),
-                // Preguntas con Switches
-                _buildSwitch(
-                  '¿Desayunas todos los días?', 
-                  user_breakfast, 
-                  (value) {
-                    setState(() {
-                      user_breakfast = value; // Usa el controlador importado
-                    });
-                  }
+                DailyIntakeInput(
+                  hint: '¿Cuántas horas duermes al día?',
+                  controller: user_sleepHoursController,
                 ),
                 SizedBox(height: 20),
-                _buildSwitch(
-                  '¿Fumas?', 
-                  user_smoke, 
-                  (value) {
-                    setState(() {
-                      user_smoke = value; // Usa el controlador importado
-                    });
-                  }
+                DailyIntakeInput(
+                  hint: '¿Cuántos litros de agua consumes al día?',
+                  controller: user_waterIntakeController,
                 ),
                 SizedBox(height: 20),
-                _buildSwitch(
-                  '¿Consumes alcohol?', 
-                  user_alcohol, 
-                  (value) {
-                    setState(() {
-                      user_alcohol = value; // Usa el controlador importado
-                    });
-                  }
+                DailyIntakeInput(
+                  hint: '¿Cuántos pasos das al día?',
+                  controller: user_stepsController,
                 ),
                 SizedBox(height: 20),
-                _buildSwitch(
-                  '¿Consumes comida chatarra?', 
-                  user_junkFood, 
-                  (value) {
-                    setState(() {
-                      user_junkFood = value; // Usa el controlador importado
-                    });
-                  }
+                DailyIntakeInput(
+                  hint: '¿Cuántas calorías consumes al día?',
+                  controller: user_caloriesController,
                 ),
                 SizedBox(height: 20),
-                _buildSwitch(
-                  '¿Gestionas tu estrés diariamente?', 
-                  user_stressManagement, 
-                  (value) {
-                    setState(() {
-                      user_stressManagement = value; // Usa el controlador importado
+                DailyIntakeInput(
+                  hint: 'Meta de peso (subir/bajar en kg)',
+                  controller: user_weightGoalController,
+                ),
+                SizedBox(height: 40),
+                ElevatedButton(
+                  onPressed: () {
+                    // Aquí puedes añadir la lógica para procesar los datos ingresados
+                    // Envía los datos de la encuesta de vuelta a la MainPage
+                    Navigator.pop(context, {
+                      'sleepHours': user_sleepHoursController.text,
+                      'waterIntake': user_waterIntakeController.text,
+                      'steps': user_stepsController.text,
+                      'calories': user_caloriesController.text,
+                      'weightGoal': user_weightGoalController.text,
                     });
-                  }
+                  },
+                  child: Text('Guardar y Continuar'),
                 ),
               ],
             ),
@@ -109,22 +99,32 @@ class _SurveyPageState extends State<SurveyPage> {
       ),
     );
   }
+}
 
-  // Método para crear Switches con estilo
-  Widget _buildSwitch(String title, bool value, Function(bool) onChanged) {
-    return SwitchListTile(
-      title: Text(
-        title,
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 18,
+// Componente reutilizable para campos de ingreso
+class DailyIntakeInput extends StatelessWidget {
+  final String hint;
+  final TextEditingController controller;
+
+  DailyIntakeInput({required this.hint, required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      style: TextStyle(color: Colors.white),
+      decoration: InputDecoration(
+        border: OutlineInputBorder(),
+        labelText: hint,
+        labelStyle: TextStyle(color: const Color.fromARGB(179, 255, 255, 255)),
+        enabledBorder: OutlineInputBorder(
+          borderSide:
+              BorderSide(color: const Color.fromARGB(179, 255, 255, 255)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.greenAccent),
         ),
       ),
-      value: value,
-      onChanged: onChanged,
-      activeColor: Colors.greenAccent,
-      inactiveThumbColor: Colors.white70,
-      inactiveTrackColor: Colors.white24,
     );
   }
 }

@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'gamification_page.dart';
-import 'survey_page.dart';
-import 'daily_intake_page.dart';
+import 'survey_page.dart'; // Asegúrate de que esta página esté importada correctamente
 
 class MainPage extends StatefulWidget {
   final String username;
-
   MainPage({required this.username});
-
   @override
   _MainPageState createState() => _MainPageState();
 }
@@ -20,103 +17,102 @@ class _MainPageState extends State<MainPage> {
     {'title': 'Peso', 'value': 0},
     {'title': 'Calorías', 'value': 0},
   ];
+  String selectedType = 'Específica', goalCategory = 'Cuantitativa';
+  int goalQuantity = 0;
+  bool goalCompleted = false;
 
-  int _currentIndex = 0;
-
-  void _addGoal(String type, String name, int quantity) {
-    // Aquí puedes agregar la lógica para manejar la adición de metas
+  void _updateUserStats(Map<String, String> newStats) {
     setState(() {
-      if (type == 'Específica') {
-        userStats.add({'title': name, 'value': quantity});
-      } else {
-        userStats.add({'title': 'Meta Genérica', 'value': quantity}); // Cambiar según las opciones predefinidas
-      }
+      userStats[0]['value'] = int.tryParse(newStats['sleepHours'] ?? '0') ?? 0;
+      userStats[1]['value'] = int.tryParse(newStats['waterIntake'] ?? '0') ?? 0;
+      userStats[2]['value'] = int.tryParse(newStats['steps'] ?? '0') ?? 0;
+      userStats[3]['value'] = int.tryParse(newStats['weightGoal'] ?? '0') ?? 0;
+      userStats[4]['value'] = int.tryParse(newStats['calories'] ?? '0') ?? 0;
     });
-    Navigator.of(context).pop(); // Cerrar el diálogo
+  }
+
+  void _addGoal(String name, dynamic value) {
+    if (mounted) {
+      setState(() => userStats.add({'title': name, 'value': value}));
+    }
+    Navigator.of(context).pop(); // Mover Navigator.pop() después de setState
   }
 
   void _showAddGoalDialog() {
-    String selectedType = 'Específica';
     String goalName = '';
-    int goalQuantity = 0;
-
     showDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Añadir Meta'),
-          content: Column(
+      builder: (context) => AlertDialog(
+        title: Text('Añadir Meta'),
+        content: StatefulBuilder(
+          builder: (context, setState) => Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              DropdownButton<String>(
+              DropdownButton(
                 value: selectedType,
-                onChanged: (String? newValue) {
-                  setState(() {
-                    selectedType = newValue!;
-                  });
-                },
-                items: <String>['Específica', 'Genérica']
-                    .map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
+                onChanged: (newValue) =>
+                    setState(() => selectedType = newValue!),
+                items: ['Específica', 'Genérica']
+                    .map((value) =>
+                        DropdownMenuItem(value: value, child: Text(value)))
+                    .toList(),
               ),
-              if (selectedType == 'Específica') ...[
+              if (selectedType == 'Específica')
                 TextField(
-                  onChanged: (value) {
-                    goalName = value;
-                  },
+                  onChanged: (value) => goalName = value,
                   decoration: InputDecoration(labelText: 'Nombre de la Meta'),
                 ),
-              ] else ...[
-                DropdownButton<String>(
-                  onChanged: (String? newValue) {
-                    // Cambiar según las opciones predefinidas
-                  },
-                  items: <String>['Opción 1', 'Opción 2']
-                      .map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                ),
-              ],
-              TextField(
-                onChanged: (value) {
-                  goalQuantity = int.tryParse(value) ?? 0;
-                },
-                decoration: InputDecoration(labelText: 'Cantidad de la Meta'),
-                keyboardType: TextInputType.number,
+              DropdownButton(
+                value: goalCategory,
+                onChanged: (newValue) =>
+                    setState(() => goalCategory = newValue!),
+                items: ['Cuantitativa', 'Cualitativa']
+                    .map((value) =>
+                        DropdownMenuItem(value: value, child: Text(value)))
+                    .toList(),
               ),
+              if (goalCategory == 'Cuantitativa')
+                TextField(
+                  onChanged: (value) => goalQuantity = int.tryParse(value) ?? 0,
+                  decoration: InputDecoration(labelText: 'Cantidad'),
+                  keyboardType: TextInputType.number,
+                )
+              else
+                SwitchListTile(
+                  title: Text('Cumplida'),
+                  value: goalCompleted,
+                  onChanged: (value) => setState(() => goalCompleted = value),
+                ),
             ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                if ((selectedType == 'Específica' && goalName.isNotEmpty && goalQuantity > 0) ||
-                    (selectedType == 'Genérica' && goalQuantity > 0)) {
-                  _addGoal(selectedType, goalName, goalQuantity);
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              if (goalName.isNotEmpty) {
+                if (goalCategory == 'Cuantitativa' && goalQuantity > 0) {
+                  _addGoal(goalName, goalQuantity);
+                } else if (goalCategory == 'Cualitativa') {
+                  _addGoal(goalName, goalCompleted ? 'Sí' : 'No');
                 } else {
-                  // Mostrar un mensaje de error
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Por favor, completa todos los campos correctamente.')),
-                  );
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(
+                        'Por favor, introduce una cantidad válida para la meta cuantitativa.'),
+                  ));
                 }
-              },
-              child: Text('Añadir'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Cancelar'),
-            ),
-          ],
-        );
-      },
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text('Por favor, completa el nombre de la meta.'),
+                ));
+              }
+            },
+            child: Text('Añadir'),
+          ),
+          TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('Cancelar')),
+        ],
+      ),
     );
   }
 
@@ -125,244 +121,164 @@ class _MainPageState extends State<MainPage> {
     return Scaffold(
       body: Stack(
         children: [
-          // Fondo con gradiente
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF92a8d1), Color(0xFFf7cac9)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-            height: double.infinity,
-            width: double.infinity,
-          ),
-          // Círculos decorativos
-          Positioned(
-            top: 30,
-            left: 50,
-            child: Circle(
-              diameter: 100,
-              color: Color(0xFF034f84),
-            ),
-          ),
-          Positioned(
-            top: 150,
-            right: 30,
-            child: Circle(
-              diameter: 120,
-              color: Color(0xFFf7786b),
-            ),
-          ),
-          Positioned(
-            bottom: 80,
-            left: 20,
-            child: Circle(
-              diameter: 180,
-              color: Color(0xFF92a8d1),
-            ),
-          ),
-          Positioned(
-            bottom: 30,
-            right: 80,
-            child: Circle(
-              diameter: 100,
-              color: Color(0xFFf7cac9),
-            ),
-          ),
-          // Contenido principal
+          _buildGradientBackground(),
           SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  // Encabezado
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Flexible(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Hola, ${widget.username}',
-                              style: TextStyle(
-                                fontSize: 36,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                fontFamily: 'Roboto',
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            Text(
-                              'Sigue avanzando y mantente saludable.',
-                              textAlign: TextAlign.left,
-                              style: TextStyle(fontSize: 18, color: Colors.white),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        padding: EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Color(0xFF034f84),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.person,
-                          color: Colors.white,
-                          size: 32,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 40),
-                  // Tarjeta de estadísticas
-                  Container(
-                    padding: EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.5),
-                          spreadRadius: 3,
-                          blurRadius: 7,
-                          offset: Offset(0, 3),
-                        ),
-                      ],
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                SizedBox(height: 40),
+                _buildHeader(),
+                SizedBox(height: 20),
+                _buildStatsCard(),
+                SizedBox(height: 40),
+                _buildGoalsCard(),
+                SizedBox(height: 40),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => GamificationPage())),
+                      child: Text('Ir a Gamificación'),
                     ),
-                    child: Column(
-                      children: [
-                        Text(
-                          'Estadísticas',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        Container(
-                          height: 100,
-                          child: ListView.builder(
-                            itemCount: userStats.length,
-                            scrollDirection: Axis.horizontal,
-                            itemBuilder: (context, index) {
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                child: Container(
-                                  width: 100,
-                                  padding: EdgeInsets.all(16),
-                                  decoration: BoxDecoration(
-                                    color: Color(0xFF034f84),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        userStats[index]['title'],
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                      SizedBox(height: 5),
-                                      Text(
-                                        '${userStats[index]['value']}',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        ElevatedButton(
-                          onPressed: _showAddGoalDialog,
-                          child: Text('+ Añadir Meta'),
-                        ),
-                      ],
+                    ElevatedButton(
+                      onPressed: () async {
+                        // Espera la respuesta de SurveyPage
+                        final result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => SurveyPage()));
+                        if (result != null) {
+                          // Actualiza las estadísticas con los datos obtenidos
+                          _updateUserStats(result);
+                        }
+                      },
+                      child: Text('Realizar encuesta'),
                     ),
-                  ),
-                  SizedBox(height: 20),
-                  // Tarjetas de actividad (cambiado a Metas)
-                  Container(
-                    padding: EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.5),
-                          spreadRadius: 3,
-                          blurRadius: 7,
-                          offset: Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Metas',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        Column(
-                          children: userStats.map((goal) {
-                            return ListTile(
-                              title: Text(goal['title']),
-                              trailing: Text('${goal['value']}'),
-                            );
-                          }).toList(),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  // Botón para gamificación
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => GamificationPage()),
-                      );
-                    },
-                    child: Text('Ir a Gamificación'),
-                  ),
-                ],
-              ),
+                  ],
+                ),
+                SizedBox(
+                    height:
+                        40), // Espacio al final para evitar que los botones queden pegados al borde
+              ],
             ),
           ),
         ],
       ),
     );
   }
-}
 
-// Widget para crear círculos decorativos
-class Circle extends StatelessWidget {
-  final double diameter;
-  final Color color;
+  Widget _buildGradientBackground() => Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF92a8d1), Color(0xFFf7cac9)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        height: double.infinity,
+        width: double.infinity,
+      );
 
-  Circle({required this.diameter, required this.color});
+  Widget _buildHeader() => Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Hola, ${widget.username}',
+                  style: TextStyle(
+                      fontSize: 36,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white)),
+              Text('Sigue avanzando y mantente saludable.',
+                  style: TextStyle(fontSize: 18, color: Colors.white)),
+            ],
+          ),
+          CircleAvatar(
+            backgroundColor: Color(0xFF034f84),
+            child: Icon(Icons.person, color: Colors.white, size: 32),
+          ),
+        ],
+      );
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: diameter,
-      width: diameter,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-      ),
-    );
-  }
+  Widget _buildStatsCard() => _buildCard(
+        Column(
+          children: [
+            Text('Estadísticas',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            SizedBox(height: 10),
+            Container(
+              height: 100,
+              child: ListView.builder(
+                itemCount: userStats.length,
+                scrollDirection: Axis.horizontal,
+                itemBuilder: (context, index) =>
+                    _buildStatItem(userStats[index]),
+              ),
+            ),
+            SizedBox(height: 10),
+            ElevatedButton(
+                onPressed: _showAddGoalDialog, child: Text('+ Añadir Meta')),
+          ],
+        ),
+      );
+
+  Widget _buildGoalsCard() => _buildCard(
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Metas',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+            Column(
+              children: userStats
+                  .map((goal) => ListTile(
+                      title: Text(goal['title']),
+                      trailing: Text('${goal['value']}')))
+                  .toList(),
+            ),
+          ],
+        ),
+      );
+
+  Widget _buildStatItem(Map<String, dynamic> stat) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        child: Container(
+          width: 100,
+          padding: EdgeInsets.all(16),
+          decoration: BoxDecoration(
+              color: Color(0xFF034f84),
+              borderRadius: BorderRadius.circular(10)),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(stat['title'], style: TextStyle(color: Colors.white)),
+              SizedBox(height: 5),
+              Text('${stat['value']}',
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold)),
+            ],
+          ),
+        ),
+      );
+
+  Widget _buildCard(Widget child) => Container(
+        padding: EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+                color: Colors.grey.withOpacity(0.5),
+                spreadRadius: 3,
+                blurRadius: 7)
+          ],
+        ),
+        child: child,
+      );
 }

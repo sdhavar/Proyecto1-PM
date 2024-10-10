@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'poll_page.dart';
+import 'main_page.dart';
 import 'package:flutter_application_1/controllers/signup_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // Importa SharedPreferences
 
@@ -11,15 +11,15 @@ class SignupPage extends StatefulWidget {
 class _SignupPageState extends State<SignupPage> {
   final _formKey = GlobalKey<FormState>();
 
-  // Controladores para los campos de texto
-  final TextEditingController usernameController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-
   // Validación de correo con dominios permitidos
   String? validateEmail(String? value) {
     final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
-    final allowedDomains = ['gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com'];
+    final allowedDomains = [
+      'gmail.com',
+      'hotmail.com',
+      'outlook.com',
+      'yahoo.com'
+    ];
 
     if (value == null || value.isEmpty) {
       return "Enter email address";
@@ -182,13 +182,15 @@ class _SignupPageState extends State<SignupPage> {
                       onTap: () async {
                         if (_formKey.currentState!.validate()) {
                           // Guardar credenciales
-                          await registerUser(usernameController.text, passwordController.text);
-                          
-                          // Navegar a PollPage
+                          await registerUser(
+                              usernameController.text, passwordController.text);
+
+                          // Navegar a MainPage pasando el nombre de usuario registrado
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => PollPage(),
+                              builder: (context) =>
+                                  MainPage(username: usernameController.text),
                             ),
                           );
                         }

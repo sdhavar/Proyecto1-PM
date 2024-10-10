@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // Importamos SharedPreferences
 import 'main_page.dart';
 import 'signup_page.dart';
+import 'package:flutter_application_1/controllers/login_controller.dart';
 
 void main() {
   runApp(LoginPage());
@@ -24,9 +25,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  // Controladores para los campos de entrada
-  final TextEditingController usernameController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
 
   // Clave global para manejar el estado del formulario
   final _formKey = GlobalKey<FormState>();

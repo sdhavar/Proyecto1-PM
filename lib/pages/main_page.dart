@@ -1,67 +1,60 @@
 import 'package:flutter/material.dart';
 import 'gamification_page.dart';
-import 'survey_page.dart'; // Asegúrate de que esta página esté importada correctamente
+import 'survey_page.dart'; // Ensure this page is imported correctly
+import 'login_page.dart'; // Import your LoginPage here
 
 class MainPage extends StatefulWidget {
   final String username;
   MainPage({required this.username});
+
   @override
   _MainPageState createState() => _MainPageState();
 }
 
 class _MainPageState extends State<MainPage> {
   final List<Map<String, dynamic>> userStats = [
-    {'title': 'Sueño', 'value': 0},
-    {'title': 'Agua', 'value': 0},
-    {'title': 'Caminata', 'value': 0},
-    {'title': 'Peso', 'value': 0},
-    {'title': 'Calorías', 'value': 0},
+    {'title': 'Sueño', 'value': '0 horas'},
+    {'title': 'Agua', 'value': '0 litros'},
+    {'title': 'Caminata', 'value': '0 pasos'},
+    {'title': 'Peso', 'value': '0 kg'},
+    {'title': 'Calorías', 'value': '0 cal'},
   ];
+
   String selectedType = 'Específica', goalCategory = 'Cuantitativa';
   int goalQuantity = 0;
   bool goalCompleted = false;
+  String goalUnit = ''; // To store the unit of the goal
+  String selectedGeneralGoal = 'Sueño'; // Variable for generic goal selection
 
   void _updateUserStats(Map<String, dynamic> newStats) {
     setState(() {
-      userStats[0]['value'] = int.tryParse(newStats['sleepHours'] ?? '0') ?? 0;
-      userStats[1]['value'] = int.tryParse(newStats['waterIntake'] ?? '0') ?? 0;
-      userStats[2]['value'] = int.tryParse(newStats['steps'] ?? '0') ?? 0;
-      userStats[3]['value'] = int.tryParse(newStats['weightGoal'] ?? '0') ?? 0;
-      userStats[4]['value'] = int.tryParse(newStats['calories'] ?? '0') ?? 0;
+      userStats[0]['value'] = '${int.tryParse(newStats['sleepHours'] ?? '0') ?? 0} horas';
+      userStats[1]['value'] = '${int.tryParse(newStats['waterIntake'] ?? '0') ?? 0} litros';
+      userStats[2]['value'] = '${int.tryParse(newStats['steps'] ?? '0') ?? 0} pasos';
+      userStats[3]['value'] = '${int.tryParse(newStats['weightGoal'] ?? '0') ?? 0} kg';
+      userStats[4]['value'] = '${int.tryParse(newStats['calories'] ?? '0') ?? 0} cal';
 
-      // Añadir respuestas booleanas a las estadísticas
-      userStats.add({
-        'title': 'Act. Fis. diaria',
-        'value': newStats['exercise'] == true ? '✔️' : '❌'
-      });
-      userStats.add({
-        'title': 'Cons. Fru./Ver.',
-        'value': newStats['fruitsVeggies'] == true ? '✔️' : '❌'
-      });
-      userStats.add({
-        'title': 'Evita alim. proc.',
-        'value': newStats['junkFood'] == true ? '✔️' : '❌'
-      });
-      userStats.add({
-        'title': 'Consume Alc.',
-        'value': newStats['alcohol'] == true ? '✔️' : '❌'
-      });
-      userStats.add({
-        'title': 'Estres freq.',
-        'value': newStats['stress'] == true ? '✔️' : '❌'
-      });
+      // Add boolean responses to the stats
+      userStats.add({'title': 'Act. Fis. diaria', 'value': newStats['exercise'] == true ? '✔️' : '❌'});
+      userStats.add({'title': 'Cons. Fru./Ver.', 'value': newStats['fruitsVeggies'] == true ? '✔️' : '❌'});
+      userStats.add({'title': 'Evita alim. proc.', 'value': newStats['junkFood'] == true ? '✔️' : '❌'});
+      userStats.add({'title': 'Consume Alc.', 'value': newStats['alcohol'] == true ? '✔️' : '❌'});
+      userStats.add({'title': 'Estres freq.', 'value': newStats['stress'] == true ? '✔️' : '❌'});
     });
   }
 
-  void _addGoal(String name, dynamic value) {
-    if (mounted) {
-      setState(() => userStats.add({'title': name, 'value': value}));
-    }
-    Navigator.of(context).pop(); // Mover Navigator.pop() después de setState
+  void _addGoal(String name, dynamic value, String unit) {
+    // Add the new goal to userStats directly
+    setState(() {
+      userStats.add({'title': name, 'value': '$value $unit'}); // Include the unit here
+    });
   }
 
   void _showAddGoalDialog() {
     String goalName = '';
+    String goalUnit = ''; // Variable to store the unit
+    List<String> generalGoals = ['Sueño', 'Agua', 'Caminata', 'Peso', 'Calorías']; // List of generic goals
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -72,11 +65,9 @@ class _MainPageState extends State<MainPage> {
             children: [
               DropdownButton(
                 value: selectedType,
-                onChanged: (newValue) =>
-                    setState(() => selectedType = newValue!),
+                onChanged: (newValue) => setState(() => selectedType = newValue!),
                 items: ['Específica', 'Genérica']
-                    .map((value) =>
-                        DropdownMenuItem(value: value, child: Text(value)))
+                    .map((value) => DropdownMenuItem(value: value, child: Text(value)))
                     .toList(),
               ),
               if (selectedType == 'Específica')
@@ -84,20 +75,34 @@ class _MainPageState extends State<MainPage> {
                   onChanged: (value) => goalName = value,
                   decoration: InputDecoration(labelText: 'Nombre de la Meta'),
                 ),
+              if (selectedType == 'Genérica')
+                DropdownButton(
+                  value: selectedGeneralGoal,
+                  onChanged: (newValue) => setState(() => selectedGeneralGoal = newValue!),
+                  items: generalGoals.map((goal) {
+                    return DropdownMenuItem(value: goal, child: Text(goal));
+                  }).toList(),
+                ),
               DropdownButton(
                 value: goalCategory,
-                onChanged: (newValue) =>
-                    setState(() => goalCategory = newValue!),
+                onChanged: (newValue) => setState(() => goalCategory = newValue!),
                 items: ['Cuantitativa', 'Cualitativa']
-                    .map((value) =>
-                        DropdownMenuItem(value: value, child: Text(value)))
+                    .map((value) => DropdownMenuItem(value: value, child: Text(value)))
                     .toList(),
               ),
               if (goalCategory == 'Cuantitativa')
-                TextField(
-                  onChanged: (value) => goalQuantity = int.tryParse(value) ?? 0,
-                  decoration: InputDecoration(labelText: 'Cantidad'),
-                  keyboardType: TextInputType.number,
+                Column(
+                  children: [
+                    TextField(
+                      onChanged: (value) => goalQuantity = int.tryParse(value) ?? 0,
+                      decoration: InputDecoration(labelText: 'Cantidad'),
+                      keyboardType: TextInputType.number,
+                    ),
+                    TextField(
+                      onChanged: (value) => goalUnit = value,
+                      decoration: InputDecoration(labelText: 'Unidad (ej. libros, páginas)'),
+                    ),
+                  ],
                 )
               else
                 SwitchListTile(
@@ -111,28 +116,80 @@ class _MainPageState extends State<MainPage> {
         actions: [
           TextButton(
             onPressed: () {
-              if (goalName.isNotEmpty) {
-                if (goalCategory == 'Cuantitativa' && goalQuantity > 0) {
-                  _addGoal(goalName, goalQuantity);
+              if (goalName.isNotEmpty || selectedType == 'Genérica') {
+                String finalGoalName = selectedType == 'Específica' ? goalName : selectedGeneralGoal;
+                if (goalCategory == 'Cuantitativa' && goalQuantity > 0 && goalUnit.isNotEmpty) {
+                  _addGoal(finalGoalName, goalQuantity, goalUnit); // Pass the unit as well
                 } else if (goalCategory == 'Cualitativa') {
-                  _addGoal(goalName, goalCompleted ? 'Sí' : 'No');
+                  _addGoal(finalGoalName, goalCompleted ? 'Sí' : 'No', ''); // No unit for qualitative goals
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text(
-                        'Por favor, introduce una cantidad válida para la meta cuantitativa.'),
+                    content: Text('Por favor, introduce una cantidad y unidad válida para la meta cuantitativa.'),
                   ));
                 }
+                Navigator.of(context).pop(); // Close dialog only after adding the goal
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                   content: Text('Por favor, completa el nombre de la meta.'),
                 ));
               }
             },
-            child: Text('Añadir'),
+            child: Text('Añadir', style: TextStyle(color: Colors.black)), // Changed text color to white
           ),
           TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text('Cancelar')),
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('Cancelar', style: TextStyle(color: Colors.black)), // Changed text color to white
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmDeleteGoal(int index) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Confirmar eliminación'),
+        content: Text('¿Estás seguro de que deseas eliminar esta meta?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              setState(() {
+                userStats.removeAt(index); // Remove the goal at the specified index
+              });
+              Navigator.of(context).pop(); // Close the dialog
+            },
+            child: Text('Eliminar', style: TextStyle(color: Colors.black)), // Changed text color to white
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(), // Close dialog
+            child: Text('Cancelar', style: TextStyle(color: Colors.black)), // Changed text color to white
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmLogout() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Confirmar cierre de sesión'),
+        content: Text('¿Estás seguro de que deseas cerrar sesión?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (context) => LoginPage()),
+              ); // Navigate to the LoginPage
+            },
+            child: Text('Yes'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(), // Close the dialog
+            child: Text('No'),
+          ),
         ],
       ),
     );
@@ -160,31 +217,39 @@ class _MainPageState extends State<MainPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF0056b3), // Background color
+                        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12), // Padding
+                        textStyle: TextStyle(fontSize: 16), // Text style
+                      ),
                       onPressed: () => Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (context) => GamificationPage())),
-                      child: Text('Ir a Gamificación'),
+                      child: Text('Ir a Gamificación', style: TextStyle(color: Colors.white)), // Changed text color to white
                     ),
                     ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF0056b3), // Background color
+                        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12), // Padding
+                        textStyle: TextStyle(fontSize: 16), // Text style
+                      ),
                       onPressed: () async {
-                        // Espera la respuesta de SurveyPage
+                        // Wait for the response from SurveyPage
                         final result = await Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => SurveyPage()));
                         if (result != null) {
-                          // Actualiza las estadísticas con los datos obtenidos
+                          // Update stats with obtained data
                           _updateUserStats(result);
                         }
                       },
-                      child: Text('Realizar encuesta'),
+                      child: Text('Realizar encuesta', style: TextStyle(color: Colors.white)), // Changed text color to white
                     ),
                   ],
                 ),
-                SizedBox(
-                    height:
-                        40), // Espacio al final para evitar que los botones queden pegados al borde
+                SizedBox(height: 40),
               ],
             ),
           ),
@@ -201,114 +266,93 @@ class _MainPageState extends State<MainPage> {
             end: Alignment.bottomRight,
           ),
         ),
-        height: double.infinity,
-        width: double.infinity,
       );
 
-  Widget _buildHeader() => Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Hola, ${widget.username}',
-                  style: TextStyle(
-                      fontSize: 36,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white)),
-              Text('Sigue avanzando y mantente saludable.',
-                  style: TextStyle(fontSize: 18, color: Colors.white)),
-            ],
-          ),
-          CircleAvatar(
-            backgroundColor: Color(0xFF034f84),
-            child: Icon(Icons.person, color: Colors.white, size: 32),
-          ),
-        ],
-      );
-
-  Widget _buildStatsCard() => _buildCard(
-        Column(
+  Widget _buildHeader() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
           children: [
-            Text('Estadísticas',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            SizedBox(height: 10),
-            Container(
-              height: 100,
-              child: ListView.builder(
-                itemCount: userStats.length,
-                scrollDirection: Axis.horizontal,
-                itemBuilder: (context, index) =>
-                    _buildStatItem(userStats[index]),
-              ),
+            IconButton(
+              icon: Icon(Icons.person, color: Colors.black), // Person icon
+              onPressed: _confirmLogout, // Call to confirm logout
             ),
-            SizedBox(height: 10),
-            ElevatedButton(
-                onPressed: _showAddGoalDialog, child: Text('+ Añadir Meta')),
+            SizedBox(width: 8), // Spacing between icon and text
+            Text(
+              '¡Hola ${widget.username}! ',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
+            ),
           ],
         ),
-      );
+        Text(
+          'Aquí están tus estadísticas y metas',
+          style: TextStyle(fontSize: 16, color: Colors.black),
+        ),
+      ],
+    );
+  }
 
-  Widget _buildGoalsCard() => _buildCard(
-        Column(
+  Widget _buildStatsCard() {
+    return Card(
+      color: Colors.white.withOpacity(0.8),
+      elevation: 4,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Metas',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+            Text('Estadísticas', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            SizedBox(height: 10),
+            ...userStats.map((stat) {
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(stat['title']),
+                  Text(stat['value']),
+                ],
+              );
+            }).toList(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGoalsCard() {
+    return Card(
+      color: Colors.white.withOpacity(0.8),
+      elevation: 4,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Metas', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            SizedBox(height: 10),
             Column(
               children: userStats
                   .map((goal) => ListTile(
-                      title: Text(goal['title']),
-                      trailing: Text('${goal['value']}',
-                          style: TextStyle(
-                              color: goal['value'] == '✔️'
-                                  ? Colors.green
-                                  : goal['value'] == '❌'
-                                      ? Colors.red
-                                      : Colors
-                                          .black, // Cambia el color según la respuesta
-                              fontSize: 18))))
+                        title: Text(goal['title']),
+                        subtitle: Text(goal['value']),
+                        trailing: IconButton(
+                          icon: Icon(Icons.delete, color: Colors.red),
+                          onPressed: () => _confirmDeleteGoal(userStats.indexOf(goal)),
+                        ),
+                      ))
                   .toList(),
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor: Color(0xFF0056b3), // Background color
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12), // Padding
+              ),
+              onPressed: _showAddGoalDialog,
+              child: Text('Añadir meta', style: TextStyle(color: Colors.white)), // Changed text color to white
             ),
           ],
         ),
-      );
-
-  Widget _buildStatItem(Map<String, dynamic> stat) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-        child: Container(
-          width: 100,
-          padding: EdgeInsets.all(16),
-          decoration: BoxDecoration(
-              color: Color(0xFF034f84),
-              borderRadius: BorderRadius.circular(10)),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(stat['title'], style: TextStyle(color: Colors.white)),
-              SizedBox(height: 5),
-              Text('${stat['value']}',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold)),
-            ],
-          ),
-        ),
-      );
-
-  Widget _buildCard(Widget child) => Container(
-        padding: EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-                color: Colors.grey.withOpacity(0.5),
-                spreadRadius: 3,
-                blurRadius: 7)
-          ],
-        ),
-        child: child,
-      );
+      ),
+    );
+  }
 }

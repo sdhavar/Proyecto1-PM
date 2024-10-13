@@ -1,50 +1,11 @@
 import 'package:flutter/material.dart';
-import 'main_page.dart'; // Asegúrate de que MainPage esté correctamente importada
+import 'main_page.dart';
 
-class GamificationPage extends StatefulWidget {
-  @override
-  _GamificationPageState createState() => _GamificationPageState();
-}
+class GamificationPage extends StatelessWidget {
+  final int userPoints; 
+  final String username; 
 
-class _GamificationPageState extends State<GamificationPage> {
-  int userPoints = 200; // Puedes obtener estos puntos desde el backend o un controlador
-  final List<Map<String, dynamic>> rewards = [
-    {'title': 'Descuento en tienda', 'cost': 50},
-    {'title': 'Entrenamiento personalizado', 'cost': 100},
-    {'title': 'Acceso a gimnasio', 'cost': 150},
-    {'title': 'Consulta nutricional', 'cost': 200},
-  ];
-
-  void _claimReward(int cost) {
-    if (userPoints >= cost) {
-      setState(() {
-        userPoints -= cost;
-      });
-      _showPopupMessage('¡Recompensa reclamada con éxito!');
-    } else {
-      _showPopupMessage('No tienes suficientes puntos.');
-    }
-  }
-
-  void _showPopupMessage(String message) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Mensaje'),
-          content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Cierra el diálogo
-              },
-              child: Text('Cerrar'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+  GamificationPage({required this.userPoints, required this.username});
 
   @override
   Widget build(BuildContext context) {
@@ -61,9 +22,9 @@ class _GamificationPageState extends State<GamificationPage> {
                 SizedBox(height: 20),
                 _buildPointsCard(),
                 SizedBox(height: 20),
-                _buildRewardsList(),
+                _buildRewardsList(context), // Pasar context
                 SizedBox(height: 20),
-                _buildBackToMainPageButton(), // Añadimos el botón aquí
+                _buildBackToMainPageButton(context), // Pasar context
               ],
             ),
           ),
@@ -114,7 +75,58 @@ class _GamificationPageState extends State<GamificationPage> {
         ),
       );
 
-  Widget _buildRewardsList() => _buildCard(
+  final List<Map<String, dynamic>> rewards = [
+    {'title': 'Descuento en tienda', 'cost': 50},
+    {'title': 'Entrenamiento personalizado', 'cost': 100},
+    {'title': 'Acceso a gimnasio', 'cost': 150},
+    {'title': 'Consulta nutricional', 'cost': 200},
+  ];
+
+  void _claimReward(BuildContext context, int cost) {
+    if (userPoints >= cost) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Éxito'),
+            content: Text('¡Recompensa reclamada con éxito!'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+                child: Text('Cerrar'),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      _showPopupMessage(context, 'No tienes suficientes puntos.');
+    }
+  }
+
+  void _showPopupMessage(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Mensaje'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('Cerrar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildRewardsList(BuildContext context) => _buildCard(
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -126,7 +138,7 @@ class _GamificationPageState extends State<GamificationPage> {
                 return ListTile(
                   title: Text(reward['title']),
                   trailing: ElevatedButton(
-                    onPressed: () => _claimReward(reward['cost']),
+                    onPressed: () => _claimReward(context, reward['cost']), // Pasar context
                     child: Text('Canjear (${reward['cost']} pts)'),
                   ),
                 );
@@ -136,21 +148,23 @@ class _GamificationPageState extends State<GamificationPage> {
         ),
       );
 
-  Widget _buildBackToMainPageButton() => _buildCard(
-        Center(
-          child: ElevatedButton.icon(
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => MainPage(username: '',)),
-              );
-            },
-            icon: Icon(Icons.arrow_back),
-            label: Text('Volver a la página principal'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xFF034f84),
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            ),
+  Widget _buildBackToMainPageButton(BuildContext context) => Center(
+        child: ElevatedButton(
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MainPage(
+                  username: username, // Pass the username correctly
+                ),
+              ),
+            );
+          },
+          child: Text('Volver a la página principal'),
+          style: ElevatedButton.styleFrom(
+            foregroundColor: Color(0xFF4ba3c7),
+            backgroundColor: Colors.white,
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           ),
         ),
       );

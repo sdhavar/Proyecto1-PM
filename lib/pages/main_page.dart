@@ -18,19 +18,50 @@ class _MainPageState extends State<MainPage> {
     {'title': 'Caminata', 'value': '0 pasos'},
     {'title': 'Peso', 'value': '0 kg'},
     {'title': 'Calorías', 'value': '0 cal'},
+    {'title': 'Act. Fis. diaria', 'value': '❌'}, // Initialized as not done
+    {'title': 'Cons. Fru./Ver.', 'value': '❌'}, // Initialized as not done
+    {'title': 'Evita alim. proc.', 'value': '❌'}, // Initialized as not done
+    {'title': 'Consume Alc.', 'value': '❌'}, // Initialized as not done
+    {'title': 'Estres freq.', 'value': '❌'}, // Initialized as not done
   ];
 
   String selectedType = 'Específica', goalCategory = 'Cuantitativa';
   int goalQuantity = 0;
-  bool goalCompleted = false;
   String goalUnit = '';
   String selectedGeneralGoal = 'Sueño';
   int totalPoints = 0;
   DateTime currentDate = DateTime.now();
+  int streakDays = 0;
+  DateTime? lastSurveyDate;
 
   void _advanceDays(int days) {
     setState(() {
       currentDate = currentDate.add(Duration(days: days));
+      if (lastSurveyDate != null) {
+        // Check if a day passed since the last survey
+        if (currentDate.difference(lastSurveyDate!).inDays > 1) {
+          streakDays = 0; // Reset the streak if a day was missed
+        } else {
+          streakDays += 1; // Increment streak for continuous days
+        }
+      } else {
+        // If this is the first day advancing, initialize streakDays
+        streakDays = 1;
+      }
+      lastSurveyDate = currentDate; // Update the last survey date
+
+      // Reset boolean values and quantitative values to 0
+      for (var stat in userStats) {
+        if (stat['title'] == 'Sueño' ||
+            stat['title'] == 'Agua' ||
+            stat['title'] == 'Caminata' ||
+            stat['title'] == 'Peso' ||
+            stat['title'] == 'Calorías') {
+          stat['value'] = '0 ${stat['title'] == 'Peso' ? 'kg' : stat['title'] == 'Calorías' ? 'cal' : 'horas'}'; // Assuming correct units
+        } else {
+          stat['value'] = '❌'; // Resetting boolean indicators
+        }
+      }
     });
   }
 
@@ -47,34 +78,23 @@ class _MainPageState extends State<MainPage> {
       userStats[4]['value'] =
           '${int.tryParse(newStats['calories'] ?? '0') ?? 0} cal';
 
-      userStats.removeWhere((stat) =>
-          stat['title'].startsWith('Act.') ||
-          stat['title'].startsWith('Cons.') ||
-          stat['title'].startsWith('Evita') ||
-          stat['title'].startsWith('Consume') ||
-          stat['title'].startsWith('Estres'));
-
-      userStats.add({
-        'title': 'Act. Fis. diaria',
-        'value': newStats['exercise'] == true ? '✔️' : '❌'
-      });
-      userStats.add({
-        'title': 'Cons. Fru./Ver.',
-        'value': newStats['fruitsVeggies'] == true ? '✔️' : '❌'
-      });
-      userStats.add({
-        'title': 'Evita alim. proc.',
-        'value': newStats['junkFood'] == true ? '✔️' : '❌'
-      });
-      userStats.add({
-        'title': 'Consume Alc.',
-        'value': newStats['alcohol'] == true ? '✔️' : '❌'
-      });
-      userStats.add({
-        'title': 'Estres freq.',
-        'value': newStats['stress'] == true ? '✔️' : '❌'
-      });
+      userStats[5]['value'] = newStats['exercise'] == true ? '✔️' : '❌'; // Act. Fis. diaria
+      userStats[6]['value'] = newStats['fruitsVeggies'] == true ? '✔️' : '❌'; // Cons. Fru./Ver.
+      userStats[7]['value'] = newStats['junkFood'] == true ? '✔️' : '❌'; // Evita alim. proc.
+      userStats[8]['value'] = newStats['alcohol'] == true ? '✔️' : '❌'; // Consume Alc.
+      userStats[9]['value'] = newStats['stress'] == true ? '✔️' : '❌'; // Estres freq.
     });
+    _updateStreak();
+  }
+
+  void _updateStreak() {
+    if (lastSurveyDate == null || currentDate.difference(lastSurveyDate!).inDays > 1) {
+      // Reset streak if not filled for more than a day
+      streakDays = 1; // Start streak as this is the first day
+    } else {
+      streakDays += 1; // Increment streak
+    }
+    lastSurveyDate = currentDate; // Update the last survey date
   }
 
   void _addGoal(String name, dynamic value, String unit) {
@@ -99,65 +119,66 @@ class _MainPageState extends State<MainPage> {
       builder: (context) => AlertDialog(
         title: Text('Añadir Meta'),
         content: StatefulBuilder(
-          builder: (context, setState) => Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              DropdownButton(
-                value: selectedType,
-                onChanged: (newValue) =>
-                    setState(() => selectedType = newValue!),
-                items: ['Específica', 'Genérica']
-                    .map((value) =>
+          builder: (context, setState) =>
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  DropdownButton(
+                    value: selectedType,
+                    onChanged: (newValue) =>
+                        setState(() => selectedType = newValue!),
+                    items: ['Específica', 'Genérica']
+                        .map((value) =>
                         DropdownMenuItem(value: value, child: Text(value)))
-                    .toList(),
-              ),
-              if (selectedType == 'Específica')
-                TextField(
-                  onChanged: (value) => goalName = value,
-                  decoration: InputDecoration(labelText: 'Nombre de la Meta'),
-                ),
-              if (selectedType == 'Genérica')
-                DropdownButton(
-                  value: selectedGeneralGoal,
-                  onChanged: (newValue) =>
-                      setState(() => selectedGeneralGoal = newValue!),
-                  items: generalGoals.map((goal) {
-                    return DropdownMenuItem(value: goal, child: Text(goal));
-                  }).toList(),
-                ),
-              DropdownButton(
-                value: goalCategory,
-                onChanged: (newValue) =>
-                    setState(() => goalCategory = newValue!),
-                items: ['Cuantitativa', 'Cualitativa']
-                    .map((value) =>
+                        .toList(),
+                  ),
+                  if (selectedType == 'Específica')
+                    TextField(
+                      onChanged: (value) => goalName = value,
+                      decoration: InputDecoration(labelText: 'Nombre de la Meta'),
+                    ),
+                  if (selectedType == 'Genérica')
+                    DropdownButton(
+                      value: selectedGeneralGoal,
+                      onChanged: (newValue) =>
+                          setState(() => selectedGeneralGoal = newValue!),
+                      items: generalGoals.map((goal) {
+                        return DropdownMenuItem(value: goal, child: Text(goal));
+                      }).toList(),
+                    ),
+                  DropdownButton(
+                    value: goalCategory,
+                    onChanged: (newValue) =>
+                        setState(() => goalCategory = newValue!),
+                    items: ['Cuantitativa', 'Cualitativa']
+                        .map((value) =>
                         DropdownMenuItem(value: value, child: Text(value)))
-                    .toList(),
+                        .toList(),
+                  ),
+                  if (goalCategory == 'Cuantitativa')
+                    Column(
+                      children: [
+                        TextField(
+                          onChanged: (value) =>
+                              goalQuantity = int.tryParse(value) ?? 0,
+                          decoration: InputDecoration(labelText: 'Cantidad'),
+                          keyboardType: TextInputType.number,
+                        ),
+                        TextField(
+                          onChanged: (value) => goalUnit = value,
+                          decoration: InputDecoration(
+                              labelText: 'Unidad (ej. libros, páginas)'),
+                        ),
+                      ],
+                    )
+                  else
+                    SwitchListTile(
+                      title: Text('Cumplida'),
+                      value: false,
+                      onChanged: (value) {},
+                    ),
+                ],
               ),
-              if (goalCategory == 'Cuantitativa')
-                Column(
-                  children: [
-                    TextField(
-                      onChanged: (value) =>
-                          goalQuantity = int.tryParse(value) ?? 0,
-                      decoration: InputDecoration(labelText: 'Cantidad'),
-                      keyboardType: TextInputType.number,
-                    ),
-                    TextField(
-                      onChanged: (value) => goalUnit = value,
-                      decoration: InputDecoration(
-                          labelText: 'Unidad (ej. libros, páginas)'),
-                    ),
-                  ],
-                )
-              else
-                SwitchListTile(
-                  title: Text('Cumplida'),
-                  value: goalCompleted,
-                  onChanged: (value) => setState(() => goalCompleted = value),
-                ),
-            ],
-          ),
         ),
         actions: [
           TextButton(
@@ -171,7 +192,7 @@ class _MainPageState extends State<MainPage> {
                     goalUnit.isNotEmpty) {
                   _addGoal(finalGoalName, goalQuantity, goalUnit);
                 } else if (goalCategory == 'Cualitativa') {
-                  _addGoal(finalGoalName, goalCompleted ? 'Sí' : 'No', '');
+                  _addGoal(finalGoalName, 'No', ''); // Assuming no initial completion
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     content: Text(
@@ -263,6 +284,8 @@ class _MainPageState extends State<MainPage> {
                 _buildStatsCard(),
                 SizedBox(height: 40),
                 _buildGoalsCard(),
+                SizedBox(height: 40),
+                _buildStreakWidget(),
                 SizedBox(height: 40),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -375,7 +398,7 @@ class _MainPageState extends State<MainPage> {
             Text('Estadísticas',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             SizedBox(height: 10),
-            ...userStats.map((stat) {
+            ...userStats.take(5).map((stat) { // Only show the first 5 statistical entries
               return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -426,6 +449,25 @@ class _MainPageState extends State<MainPage> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildStreakWidget() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        if (streakDays >= 3)
+          Row(
+            children: [
+              Icon(Icons.local_fire_department, color: Colors.red, size: 32),
+              SizedBox(width: 8),
+              Text(
+                '$streakDays días',
+                style: TextStyle(fontSize: 14),
+              ),
+            ],
+          ),
+      ],
     );
   }
 }

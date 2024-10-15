@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'pages/login_page.dart';
 import 'pages/main_page.dart';
 import 'pages/signup_page.dart';
-import 'pages/poll_page.dart';
 import 'pages/gamification_page.dart';
 
 void main() {

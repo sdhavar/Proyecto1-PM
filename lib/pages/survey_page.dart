@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/controllers/survey_controller.dart';
 
 class SurveyPage extends StatefulWidget {
   @override
@@ -7,7 +6,48 @@ class SurveyPage extends StatefulWidget {
 }
 
 class _SurveyPageState extends State<SurveyPage> {
-  final _formKey = GlobalKey<FormState>(); // Key for form validation
+  final _formKey = GlobalKey<FormState>();
+
+  // Define your controllers and boolean variables
+  TextEditingController user_sleepHoursController = TextEditingController();
+  TextEditingController user_waterIntakeController = TextEditingController();
+  TextEditingController user_stepsController = TextEditingController();
+  TextEditingController user_caloriesController = TextEditingController();
+  TextEditingController user_weightGoalController = TextEditingController();
+  
+  bool user_physicalActivity = false;
+  bool user_fruitsVegetables = false;
+  bool user_avoidProcessedFood = false;
+  bool user_alcoholConsumption = false;
+  bool user_stressedFrequently = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Reset the controllers and boolean variables for a fresh start
+    user_sleepHoursController.clear();
+    user_waterIntakeController.clear();
+    user_stepsController.clear();
+    user_caloriesController.clear();
+    user_weightGoalController.clear();
+
+    user_physicalActivity = false;
+    user_fruitsVegetables = false;
+    user_avoidProcessedFood = false;
+    user_alcoholConsumption = false;
+    user_stressedFrequently = false;
+  }
+
+  @override
+  void dispose() {
+    // Dispose of the controllers to free up resources
+    user_sleepHoursController.dispose();
+    user_waterIntakeController.dispose();
+    user_stepsController.dispose();
+    user_caloriesController.dispose();
+    user_weightGoalController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +68,7 @@ class _SurveyPageState extends State<SurveyPage> {
           SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
             child: Form(
-              key: _formKey, // Assign the form key
+              key: _formKey,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -124,9 +164,7 @@ class _SurveyPageState extends State<SurveyPage> {
                   SizedBox(height: 40),
                   ElevatedButton(
                     onPressed: () {
-                      // Validate the form
                       if (_formKey.currentState!.validate()) {
-                        // If valid, send data back to MainPage
                         Navigator.pop(context, {
                           'sleepHours': user_sleepHoursController.text,
                           'waterIntake': user_waterIntakeController.text,
@@ -167,7 +205,6 @@ class _SurveyPageState extends State<SurveyPage> {
     if (value == null || value.isEmpty) {
       return "Enter weight goal";
     }
-    // Additional validation for weight can be implemented here if needed
     return null; // Valid input
   }
 
@@ -212,7 +249,7 @@ class DailyIntakeInput extends StatelessWidget {
           borderSide: BorderSide(color: Colors.greenAccent),
         ),
       ),
-      validator: validator, // Add the validator to the TextFormField
+      validator: validator,
     );
   }
 }

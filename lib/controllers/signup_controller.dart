@@ -13,7 +13,8 @@ class SignupController {
       'gmail.com',
       'hotmail.com',
       'outlook.com',
-      'yahoo.com'
+      'yahoo.com',
+      'uninorte.edu.co'
     ];
 
     if (value == null || value.isEmpty) {
@@ -48,11 +49,25 @@ class SignupController {
     return null;
   }
 
+  // Verificar si el correo ya está registrado
+  Future<bool> checkIfEmailExists(String email) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? registeredEmails = prefs.getStringList('registeredEmails');
+    if (registeredEmails != null && registeredEmails.contains(email)) {
+      return true;
+    }
+    return false;
+  }
+
   // Guardar credenciales en SharedPreferences
   Future<void> registerUser() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? registeredEmails = prefs.getStringList('registeredEmails') ?? [];
+    registeredEmails.add(emailController.text);
+    await prefs.setStringList('registeredEmails', registeredEmails);
     await prefs.setString('username', usernameController.text);
     await prefs.setString('password', passwordController.text);
+    await prefs.setString('email', emailController.text);
   }
 
   // Método para liberar los controladores

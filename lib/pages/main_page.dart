@@ -24,7 +24,7 @@ class _MainPageState extends State<MainPage> {
   };
 
   final UserStatsController userStatsController = UserStatsController();
-  final StreakController streakController; // Updated to use the new controller
+  final StreakController streakController;
 
   String selectedType = 'Específica', goalCategory = 'Cuantitativa';
   int goalQuantity = 0;
@@ -39,7 +39,7 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
-    _loadPointsAndStreak(); // Load points and streak from shared preferences
+    _loadPointsAndStreak();
   }
 
   void _loadPointsAndStreak() async {
@@ -63,10 +63,10 @@ class _MainPageState extends State<MainPage> {
       userStatsController.resetStats();
       if (streakController.streakDays > 0 &&
           streakController.streakDays % 3 == 0) {
-        totalPoints += 50; // Add points on streak milestone
-        _showStreakNotification(); // Show notification
+        totalPoints += 50;
+        _showStreakNotification();
       }
-      _savePointsAndStreak(); // Save points and streak
+      _savePointsAndStreak();
     });
   }
 
@@ -256,7 +256,7 @@ class _MainPageState extends State<MainPage> {
                 MaterialPageRoute(builder: (context) => LoginPage()),
               );
             },
-            child: Text('Yes'),
+            child: Text('Sí'),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -345,12 +345,6 @@ class _MainPageState extends State<MainPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF0056b3),
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                        textStyle: TextStyle(fontSize: 16),
-                      ),
                       onPressed: () => Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -362,12 +356,6 @@ class _MainPageState extends State<MainPage> {
                           style: TextStyle(color: Colors.white)),
                     ),
                     ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF0056b3),
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                        textStyle: TextStyle(fontSize: 16),
-                      ),
                       onPressed: () async {
                         final result = await Navigator.push(
                             context,
@@ -403,7 +391,6 @@ class _MainPageState extends State<MainPage> {
 
   Widget _buildHeader() {
     return SingleChildScrollView(
-      // Add this line
       scrollDirection: Axis.horizontal, // This allows horizontal scrolling
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -414,7 +401,7 @@ class _MainPageState extends State<MainPage> {
                 icon: Icon(Icons.person, color: Colors.black),
                 onPressed: _confirmLogout,
               ),
-              SizedBox(width: 8),
+              SizedBox(width: 10), // Space between icon and text
               Text(
                 '¡Hola ${widget.username}! ',
                 style: TextStyle(
@@ -422,22 +409,36 @@ class _MainPageState extends State<MainPage> {
                     fontWeight: FontWeight.bold,
                     color: Colors.black),
               ),
+              SizedBox(width: 20), // Space after the greeting
             ],
           ),
-          Text(
-            'Aquí están tus estadísticas y metas',
-            style: TextStyle(fontSize: 16, color: Colors.black),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              SizedBox(height: 8), // Optional spacing above the text
+              Text(
+                'Aquí están tus estadísticas y metas',
+                style: TextStyle(fontSize: 16, color: Colors.black),
+              ),
+              SizedBox(height: 4), // Space between stats label and current date
+              Text(
+                  'Fecha actual: ${currentDate.toLocal().toString().split(' ')[0]}',
+                  style: TextStyle(fontSize: 16)),
+            ],
           ),
-          Text(
-              'Fecha actual: ${currentDate.toLocal().toString().split(' ')[0]}',
-              style: TextStyle(fontSize: 16)),
-          ElevatedButton(
-            onPressed: () => _advanceDays(1),
-            child: Text('Avanzar 1 día'),
-          ),
-          ElevatedButton(
-            onPressed: () => _advanceDays(7),
-            child: Text('Avanzar 7 días'),
+          SizedBox(width: 20), // Add space before the buttons
+          Row(
+            children: [
+              ElevatedButton(
+                onPressed: () => _advanceDays(1),
+                child: Icon(Icons.arrow_forward, size: 24), // Icon for 1 day
+              ),
+              SizedBox(width: 10), // Space between the two buttons
+              ElevatedButton(
+                onPressed: () => _advanceDays(7),
+                child: Icon(Icons.arrow_forward_ios, size: 24), // Icon for 7 days
+              ),
+            ],
           ),
         ],
       ),

@@ -140,18 +140,33 @@ class _SignupPageState extends State<SignupPage> {
                     InkWell(
                       onTap: () async {
                         if (_formKey.currentState!.validate()) {
-                          // Guardar credenciales
-                          await _signupController.registerUser();
+                          try {
+                            // Verificar si el correo ya está registrado
+                            bool emailExists = await _signupController.checkIfEmailExists(_signupController.emailController.text);
+                            if (emailExists) {
+                              throw Exception('Este correo ya está registrado. Por favor, elige otro.');
+                            }
 
-                          // Navegar a MainPage pasando el nombre de usuario registrado
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => MainPage(
-                                  username: _signupController
-                                      .usernameController.text),
-                            ),
-                          );
+                            // Guardar credenciales
+                            await _signupController.registerUser();
+
+                            // Navegar a MainPage pasando el nombre de usuario registrado
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => MainPage(
+                                    username: _signupController
+                                        .usernameController.text),
+                              ),
+                            );
+                          } catch (e) {
+                            // Mostrar mensaje de error si el correo ya está registrado
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(e.toString()),
+                              ),
+                            );
+                          }
                         }
                       },
                       borderRadius: BorderRadius.circular(25),

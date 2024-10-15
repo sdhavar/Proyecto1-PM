@@ -253,6 +253,58 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
+  void _confirmCompleteGoal(int index) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Completar Meta'),
+        content: Text('¿Estás seguro de que deseas marcar esta meta como completada?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              setState(() {
+                userStatsController.userStats[index]['completed'] = true; // Mark as completed
+              });
+              Navigator.of(context).pop();
+              _showProgressBar(); // Show the progress bar
+            },
+            child: Text('Sí'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('No'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showProgressBar() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Progreso de Compleción'),
+              SizedBox(height: 10),
+              LinearProgressIndicator(value: 1.0), // Simulate completion
+              SizedBox(height: 10),
+              Text('¡Meta completada!'),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('Cerrar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -410,9 +462,18 @@ class _MainPageState extends State<MainPage> {
               children: userStatsController.userStats.map((goal) => ListTile(
                     title: Text(goal['title']),
                     subtitle: Text(goal['value']),
-                    trailing: IconButton(
-                      icon: Icon(Icons.delete, color: Colors.red),
-                      onPressed: () => _confirmDeleteGoal(userStatsController.userStats.indexOf(goal)),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.check, color: Colors.green),
+                          onPressed: () => _confirmCompleteGoal(userStatsController.userStats.indexOf(goal)),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.delete, color: Colors.red),
+                          onPressed: () => _confirmDeleteGoal(userStatsController.userStats.indexOf(goal)),
+                        ),
+                      ],
                     ),
                   )).toList(),
             ),

@@ -1,11 +1,25 @@
 import 'package:flutter/material.dart';
 import 'main_page.dart';
 
-class GamificationPage extends StatelessWidget {
+class GamificationPage extends StatefulWidget {
   final int userPoints; 
   final String username; 
+  final int streakDays;
 
-  GamificationPage({required this.userPoints, required this.username});
+  GamificationPage({required this.userPoints, required this.username, required this.streakDays});
+
+  @override
+  _GamificationPageState createState() => _GamificationPageState();
+}
+
+class _GamificationPageState extends State<GamificationPage> {
+  late int updatedPoints;
+
+  @override
+  void initState() {
+    super.initState();
+    updatedPoints = widget.userPoints;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,9 +36,9 @@ class GamificationPage extends StatelessWidget {
                 SizedBox(height: 20),
                 _buildPointsCard(),
                 SizedBox(height: 20),
-                _buildRewardsList(context), // Pasar context
+                _buildRewardsList(context),
                 SizedBox(height: 20),
-                _buildBackToMainPageButton(context), // Pasar context
+                _buildBackToMainPageButton(context),
               ],
             ),
           ),
@@ -66,7 +80,7 @@ class GamificationPage extends StatelessWidget {
             Text('Puntos acumulados',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             SizedBox(height: 10),
-            Text('$userPoints',
+            Text('$updatedPoints', // Update the points displayed
                 style: TextStyle(
                     fontSize: 48,
                     color: Colors.blueAccent,
@@ -83,7 +97,7 @@ class GamificationPage extends StatelessWidget {
   ];
 
   void _claimReward(BuildContext context, int cost) {
-    if (userPoints >= cost) {
+    if (updatedPoints >= cost) {
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -93,6 +107,9 @@ class GamificationPage extends StatelessWidget {
             actions: [
               TextButton(
                 onPressed: () {
+                  setState(() {
+                    updatedPoints -= cost; // Deduct points after claiming a reward
+                  });
                   Navigator.of(context).pop(); // Close the dialog
                 },
                 child: Text('Cerrar'),
@@ -138,7 +155,7 @@ class GamificationPage extends StatelessWidget {
                 return ListTile(
                   title: Text(reward['title']),
                   trailing: ElevatedButton(
-                    onPressed: () => _claimReward(context, reward['cost']), // Pasar context
+                    onPressed: () => _claimReward(context, reward['cost']),
                     child: Text('Canjear (${reward['cost']} pts)'),
                   ),
                 );
@@ -155,7 +172,7 @@ class GamificationPage extends StatelessWidget {
               context,
               MaterialPageRoute(
                 builder: (context) => MainPage(
-                  username: username, // Pass the username correctly
+                  username: widget.username,
                 ),
               ),
             );

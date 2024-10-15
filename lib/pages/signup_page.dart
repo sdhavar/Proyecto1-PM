@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'main_page.dart';
-import 'package:flutter_application_1/controllers/signup_controller.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // Importa SharedPreferences
+import 'package:flutter_application_1/controllers/signup_controller.dart'; // Importar el controlador
 
 class SignupPage extends StatefulWidget {
   @override
@@ -11,53 +10,13 @@ class SignupPage extends StatefulWidget {
 class _SignupPageState extends State<SignupPage> {
   final _formKey = GlobalKey<FormState>();
 
-  // Validación de correo con dominios permitidos
-  String? validateEmail(String? value) {
-    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
-    final allowedDomains = [
-      'gmail.com',
-      'hotmail.com',
-      'outlook.com',
-      'yahoo.com'
-    ];
+  // Instancia del controlador de registro
+  final SignupController _signupController = SignupController();
 
-    if (value == null || value.isEmpty) {
-      return "Enter email address";
-    } else if (!emailRegex.hasMatch(value)) {
-      return "Enter a valid email address";
-    } else {
-      final domain = value.split('@').last;
-      if (!allowedDomains.contains(domain)) {
-        return "Email must be from gmail, hotmail, outlook, or yahoo";
-      }
-    }
-    return null;
-  }
-
-  // Validación de username y contraseña (mínimo 6 caracteres)
-  String? validateUsername(String? value) {
-    if (value == null || value.isEmpty) {
-      return "Enter username";
-    } else if (value.length < 6) {
-      return "Username must be at least 6 characters";
-    }
-    return null;
-  }
-
-  String? validatePassword(String? value) {
-    if (value == null || value.isEmpty) {
-      return "Enter password";
-    } else if (value.length < 6) {
-      return "Password must be at least 6 characters";
-    }
-    return null;
-  }
-
-  // Función para registrar usuario
-  Future<void> registerUser(String username, String password) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('username', username);
-    await prefs.setString('password', password);
+  @override
+  void dispose() {
+    _signupController.dispose(); // Liberar recursos del controlador
+    super.dispose();
   }
 
   @override
@@ -161,36 +120,36 @@ class _SignupPageState extends State<SignupPage> {
                     FormInput(
                       icon: Icons.person,
                       hint: 'USERNAME',
-                      controller: usernameController,
-                      validator: validateUsername,
+                      controller: _signupController.usernameController, // Usar el controlador
+                      validator: _signupController.validateUsername,
                     ),
                     FormInput(
                       icon: Icons.lock,
                       hint: 'PASSWORD',
                       obscureText: true,
-                      controller: passwordController,
-                      validator: validatePassword,
+                      controller: _signupController.passwordController, // Usar el controlador
+                      validator: _signupController.validatePassword,
                     ),
                     FormInput(
                       icon: Icons.email,
                       hint: 'EMAIL ADDRESS',
-                      controller: emailController,
-                      validator: validateEmail,
+                      controller: _signupController.emailController, // Usar el controlador
+                      validator: _signupController.validateEmail,
                     ),
                     SizedBox(height: 20),
                     InkWell(
                       onTap: () async {
                         if (_formKey.currentState!.validate()) {
                           // Guardar credenciales
-                          await registerUser(
-                              usernameController.text, passwordController.text);
+                          await _signupController.registerUser();
 
                           // Navegar a MainPage pasando el nombre de usuario registrado
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                              builder: (context) =>
-                                  MainPage(username: usernameController.text),
+                              builder: (context) => MainPage(
+                                  username: _signupController
+                                      .usernameController.text),
                             ),
                           );
                         }

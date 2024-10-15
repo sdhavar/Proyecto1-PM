@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // Importamos SharedPreferences
 import 'main_page.dart';
 import 'signup_page.dart';
-import 'package:flutter_application_1/controllers/login_controller.dart';
+import 'package:flutter_application_1/controllers/login_controller.dart'; // Importar el controlador
 
 void main() {
   runApp(LoginPage());
@@ -26,51 +25,21 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
 
-  // Clave global para manejar el estado del formulario
   final _formKey = GlobalKey<FormState>();
+
+  // Instancia del controlador de login
+  final LoginController _loginController = LoginController();
 
   @override
   void initState() {
     super.initState();
-    _loadCredentials(); // Cargar las credenciales guardadas
+    _loginController.loadCredentials(); // Cargar credenciales guardadas
   }
 
-  // Cargar las credenciales desde SharedPreferences
-  void _loadCredentials() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? username = prefs.getString('username');
-    String? password = prefs.getString('password');
-
-    if (username != null && password != null) {
-      usernameController.text = username;
-      passwordController.text = password;
-    }
-  }
-
-  // Guardar las credenciales en SharedPreferences
-  void _saveCredentials(String username, String password) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('username', username);
-    await prefs.setString('password', password);
-  }
-
-  // Validar las credenciales al iniciar sesión
-  Future<bool> _validateLogin(String username, String password) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? storedUsername = prefs.getString('username');
-    String? storedPassword = prefs.getString('password');
-
-    if (storedUsername == null || storedPassword == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("No account found. Please sign up."),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return false;
-    }
-
-    return username == storedUsername && password == storedPassword;
+  @override
+  void dispose() {
+    _loginController.dispose(); // Liberar los recursos del controlador
+    super.dispose();
   }
 
   @override
@@ -132,7 +101,7 @@ class _LoginScreenState extends State<LoginScreen> {
         // Contenido del login
         Center(
           child: Form(
-            key: _formKey, // Asociamos el Form a la clave global
+            key: _formKey,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -148,7 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 LoginInput(
                   icon: Icons.person,
                   hint: 'USERNAME',
-                  controller: usernameController,
+                  controller: _loginController.usernameController, // Usar el controlador
                   validator: (value) {
                     if (value!.isEmpty) {
                       return "Enter username";
@@ -163,7 +132,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   icon: Icons.lock,
                   hint: 'PASSWORD',
                   obscureText: true,
-                  controller: passwordController,
+                  controller: _loginController.passwordController, // Usar el controlador
                   validator: (value) {
                     if (value!.isEmpty) {
                       return "Enter password";
@@ -179,16 +148,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: [
                     InkWell(
                       onTap: () async {
-                        // Validamos el formulario
                         if (_formKey.currentState!.validate()) {
-                          String username = usernameController.text;
-                          String password = passwordController.text;
+                          String username = _loginController.usernameController.text;
+                          String password = _loginController.passwordController.text;
 
-                          // Validar las credenciales
-                          bool isValid = await _validateLogin(username, password);
+                          // Validar las credenciales con el controlador
+                          bool isValid = await _loginController.validateLogin(username, password);
 
                           if (isValid) {
-                            // Navegar a MainPage pasando el username
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -196,7 +163,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                       MainPage(username: username)),
                             );
                           } else {
-                            // Mostrar mensaje de error
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text("Invalid username or password"),
@@ -292,7 +258,7 @@ class LoginInput extends StatelessWidget {
                 hintText: hint,
                 hintStyle: TextStyle(color: Colors.grey),
               ),
-              validator: validator, // Aquí añadimos la validación
+              validator: validator,
             ),
           ),
         ],
@@ -319,4 +285,3 @@ class Circle extends StatelessWidget {
     );
   }
 }
-

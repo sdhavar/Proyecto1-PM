@@ -8,7 +8,6 @@ class SurveyPage extends StatefulWidget {
 class _SurveyPageState extends State<SurveyPage> {
   final _formKey = GlobalKey<FormState>();
 
-  // Define your controllers and boolean variables
   TextEditingController user_sleepHoursController = TextEditingController();
   TextEditingController user_waterIntakeController = TextEditingController();
   TextEditingController user_stepsController = TextEditingController();

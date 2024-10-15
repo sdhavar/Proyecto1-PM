@@ -12,6 +12,14 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  final Map<String, double> objectiveValues = {
+    'Sueño': 8.0,
+    'Agua': 5.0,
+    'Caminata': 6000.0,
+    'Peso': 70.0,
+    'Calorías': 3000.0,
+  };
+
   final List<Map<String, dynamic>> userStats = [
     {'title': 'Sueño', 'value': '0 horas'},
     {'title': 'Agua', 'value': '0 litros'},
@@ -57,7 +65,8 @@ class _MainPageState extends State<MainPage> {
             stat['title'] == 'Caminata' ||
             stat['title'] == 'Peso' ||
             stat['title'] == 'Calorías') {
-          stat['value'] = '0 ${stat['title'] == 'Peso' ? 'kg' : stat['title'] == 'Calorías' ? 'cal' : 'horas'}'; // Assuming correct units
+          stat['value'] =
+              '0 ${stat['title'] == 'Peso' ? 'kg' : stat['title'] == 'Calorías' ? 'cal' : 'horas'}'; // Assuming correct units
         } else {
           stat['value'] = '❌'; // Resetting boolean indicators
         }
@@ -78,17 +87,23 @@ class _MainPageState extends State<MainPage> {
       userStats[4]['value'] =
           '${int.tryParse(newStats['calories'] ?? '0') ?? 0} cal';
 
-      userStats[5]['value'] = newStats['exercise'] == true ? '✔️' : '❌'; // Act. Fis. diaria
-      userStats[6]['value'] = newStats['fruitsVeggies'] == true ? '✔️' : '❌'; // Cons. Fru./Ver.
-      userStats[7]['value'] = newStats['junkFood'] == true ? '✔️' : '❌'; // Evita alim. proc.
-      userStats[8]['value'] = newStats['alcohol'] == true ? '✔️' : '❌'; // Consume Alc.
-      userStats[9]['value'] = newStats['stress'] == true ? '✔️' : '❌'; // Estres freq.
+      userStats[5]['value'] =
+          newStats['exercise'] == true ? '✔️' : '❌'; // Act. Fis. diaria
+      userStats[6]['value'] =
+          newStats['fruitsVeggies'] == true ? '✔️' : '❌'; // Cons. Fru./Ver.
+      userStats[7]['value'] =
+          newStats['junkFood'] == true ? '✔️' : '❌'; // Evita alim. proc.
+      userStats[8]['value'] =
+          newStats['alcohol'] == true ? '✔️' : '❌'; // Consume Alc.
+      userStats[9]['value'] =
+          newStats['stress'] == true ? '✔️' : '❌'; // Estres freq.
     });
     _updateStreak();
   }
 
   void _updateStreak() {
-    if (lastSurveyDate == null || currentDate.difference(lastSurveyDate!).inDays > 1) {
+    if (lastSurveyDate == null ||
+        currentDate.difference(lastSurveyDate!).inDays > 1) {
       // Reset streak if not filled for more than a day
       streakDays = 1; // Start streak as this is the first day
     } else {
@@ -119,66 +134,65 @@ class _MainPageState extends State<MainPage> {
       builder: (context) => AlertDialog(
         title: Text('Añadir Meta'),
         content: StatefulBuilder(
-          builder: (context, setState) =>
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  DropdownButton(
-                    value: selectedType,
-                    onChanged: (newValue) =>
-                        setState(() => selectedType = newValue!),
-                    items: ['Específica', 'Genérica']
-                        .map((value) =>
+          builder: (context, setState) => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DropdownButton(
+                value: selectedType,
+                onChanged: (newValue) =>
+                    setState(() => selectedType = newValue!),
+                items: ['Específica', 'Genérica']
+                    .map((value) =>
                         DropdownMenuItem(value: value, child: Text(value)))
-                        .toList(),
-                  ),
-                  if (selectedType == 'Específica')
-                    TextField(
-                      onChanged: (value) => goalName = value,
-                      decoration: InputDecoration(labelText: 'Nombre de la Meta'),
-                    ),
-                  if (selectedType == 'Genérica')
-                    DropdownButton(
-                      value: selectedGeneralGoal,
-                      onChanged: (newValue) =>
-                          setState(() => selectedGeneralGoal = newValue!),
-                      items: generalGoals.map((goal) {
-                        return DropdownMenuItem(value: goal, child: Text(goal));
-                      }).toList(),
-                    ),
-                  DropdownButton(
-                    value: goalCategory,
-                    onChanged: (newValue) =>
-                        setState(() => goalCategory = newValue!),
-                    items: ['Cuantitativa', 'Cualitativa']
-                        .map((value) =>
-                        DropdownMenuItem(value: value, child: Text(value)))
-                        .toList(),
-                  ),
-                  if (goalCategory == 'Cuantitativa')
-                    Column(
-                      children: [
-                        TextField(
-                          onChanged: (value) =>
-                              goalQuantity = int.tryParse(value) ?? 0,
-                          decoration: InputDecoration(labelText: 'Cantidad'),
-                          keyboardType: TextInputType.number,
-                        ),
-                        TextField(
-                          onChanged: (value) => goalUnit = value,
-                          decoration: InputDecoration(
-                              labelText: 'Unidad (ej. libros, páginas)'),
-                        ),
-                      ],
-                    )
-                  else
-                    SwitchListTile(
-                      title: Text('Cumplida'),
-                      value: false,
-                      onChanged: (value) {},
-                    ),
-                ],
+                    .toList(),
               ),
+              if (selectedType == 'Específica')
+                TextField(
+                  onChanged: (value) => goalName = value,
+                  decoration: InputDecoration(labelText: 'Nombre de la Meta'),
+                ),
+              if (selectedType == 'Genérica')
+                DropdownButton(
+                  value: selectedGeneralGoal,
+                  onChanged: (newValue) =>
+                      setState(() => selectedGeneralGoal = newValue!),
+                  items: generalGoals.map((goal) {
+                    return DropdownMenuItem(value: goal, child: Text(goal));
+                  }).toList(),
+                ),
+              DropdownButton(
+                value: goalCategory,
+                onChanged: (newValue) =>
+                    setState(() => goalCategory = newValue!),
+                items: ['Cuantitativa', 'Cualitativa']
+                    .map((value) =>
+                        DropdownMenuItem(value: value, child: Text(value)))
+                    .toList(),
+              ),
+              if (goalCategory == 'Cuantitativa')
+                Column(
+                  children: [
+                    TextField(
+                      onChanged: (value) =>
+                          goalQuantity = int.tryParse(value) ?? 0,
+                      decoration: InputDecoration(labelText: 'Cantidad'),
+                      keyboardType: TextInputType.number,
+                    ),
+                    TextField(
+                      onChanged: (value) => goalUnit = value,
+                      decoration: InputDecoration(
+                          labelText: 'Unidad (ej. libros, páginas)'),
+                    ),
+                  ],
+                )
+              else
+                SwitchListTile(
+                  title: Text('Cumplida'),
+                  value: false,
+                  onChanged: (value) {},
+                ),
+            ],
+          ),
         ),
         actions: [
           TextButton(
@@ -192,7 +206,8 @@ class _MainPageState extends State<MainPage> {
                     goalUnit.isNotEmpty) {
                   _addGoal(finalGoalName, goalQuantity, goalUnit);
                 } else if (goalCategory == 'Cualitativa') {
-                  _addGoal(finalGoalName, 'No', ''); // Assuming no initial completion
+                  _addGoal(finalGoalName, 'No',
+                      ''); // Assuming no initial completion
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     content: Text(
@@ -398,7 +413,8 @@ class _MainPageState extends State<MainPage> {
             Text('Estadísticas',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             SizedBox(height: 10),
-            ...userStats.take(5).map((stat) { // Only show the first 5 statistical entries
+            ...userStats.take(5).map((stat) {
+              // Only show the first 5 statistical entries
               return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [

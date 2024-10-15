@@ -13,7 +13,7 @@ class _SurveyPageState extends State<SurveyPage> {
   TextEditingController user_stepsController = TextEditingController();
   TextEditingController user_caloriesController = TextEditingController();
   TextEditingController user_weightGoalController = TextEditingController();
-  
+
   bool user_physicalActivity = false;
   bool user_fruitsVegetables = false;
   bool user_avoidProcessedFood = false;
@@ -74,7 +74,7 @@ class _SurveyPageState extends State<SurveyPage> {
                   SizedBox(height: 80),
                   Center(
                     child: Text(
-                      'Health Survey',
+                      'Cuestionario de Salud',
                       style: TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
@@ -84,80 +84,93 @@ class _SurveyPageState extends State<SurveyPage> {
                   ),
                   SizedBox(height: 40),
                   DailyIntakeInput(
-                    hint: 'How many hours do you sleep per day?',
+                    hint: 'Cuantas horas duermes al dia?',
                     controller: user_sleepHoursController,
-                    validator: (value) => _validateNumericInput(value, 'sleep hours'),
+                    validator: (value) =>
+                        _validateNumericInput(value, 'sleep hours'),
                   ),
                   SizedBox(height: 20),
                   DailyIntakeInput(
-                    hint: 'How many liters of water do you consume daily?',
+                    hint: 'Cuantos litros de agua consumes diariamente?',
                     controller: user_waterIntakeController,
-                    validator: (value) => _validateNumericInput(value, 'water intake'),
+                    validator: (value) =>
+                        _validateNumericInput(value, 'water intake'),
                   ),
                   SizedBox(height: 20),
                   DailyIntakeInput(
-                    hint: 'How many steps do you take daily?',
+                    hint: 'Cuantos pasos das al dia?',
                     controller: user_stepsController,
                     validator: (value) => _validateNumericInput(value, 'steps'),
                   ),
                   SizedBox(height: 20),
                   DailyIntakeInput(
-                    hint: 'How many calories do you consume daily?',
+                    hint: 'Cuantas calorias consumes diariamente?',
                     controller: user_caloriesController,
-                    validator: (value) => _validateNumericInput(value, 'calories'),
+                    validator: (value) =>
+                        _validateNumericInput(value, 'calories'),
                   ),
                   SizedBox(height: 20),
                   DailyIntakeInput(
-                    hint: 'Weight goal (gain/loss in kg)',
+                    hint: 'Meta de peso (Subir/bajar) en kg',
                     controller: user_weightGoalController,
                     validator: (value) => _validateWeightGoalInput(value),
                   ),
                   SizedBox(height: 40),
 
-                  BooleanQuestion(
-                    question: 'Do you perform physical activity daily?',
-                    value: user_physicalActivity,
-                    onChanged: (newValue) {
-                      setState(() {
-                        user_physicalActivity = newValue;
-                      });
-                    },
-                  ),
-                  BooleanQuestion(
-                    question: 'Do you consume fruits and vegetables every day?',
-                    value: user_fruitsVegetables,
-                    onChanged: (newValue) {
-                      setState(() {
-                        user_fruitsVegetables = newValue;
-                      });
-                    },
-                  ),
-                  BooleanQuestion(
-                    question: 'Do you avoid processed foods?',
-                    value: user_avoidProcessedFood,
-                    onChanged: (newValue) {
-                      setState(() {
-                        user_avoidProcessedFood = newValue;
-                      });
-                    },
-                  ),
-                  BooleanQuestion(
-                    question: 'Do you consume alcoholic beverages regularly?',
-                    value: user_alcoholConsumption,
-                    onChanged: (newValue) {
-                      setState(() {
-                        user_alcoholConsumption = newValue;
-                      });
-                    },
-                  ),
-                  BooleanQuestion(
-                    question: 'Do you feel stressed frequently?',
-                    value: user_stressedFrequently,
-                    onChanged: (newValue) {
-                      setState(() {
-                        user_stressedFrequently = newValue;
-                      });
-                    },
+                  // Wrap boolean questions in SingleChildScrollView
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Column(
+                      children: [
+                        BooleanQuestion(
+                          question: 'Haces actividad fisica diariamente?',
+                          value: user_physicalActivity,
+                          onChanged: (newValue) {
+                            setState(() {
+                              user_physicalActivity = newValue;
+                            });
+                          },
+                        ),
+                        BooleanQuestion(
+                          question:
+                              'Consumes frutas y verduras todos los dias?',
+                          value: user_fruitsVegetables,
+                          onChanged: (newValue) {
+                            setState(() {
+                              user_fruitsVegetables = newValue;
+                            });
+                          },
+                        ),
+                        BooleanQuestion(
+                          question: 'Evitas alimentos procesados?',
+                          value: user_avoidProcessedFood,
+                          onChanged: (newValue) {
+                            setState(() {
+                              user_avoidProcessedFood = newValue;
+                            });
+                          },
+                        ),
+                        BooleanQuestion(
+                          question:
+                              'Consumes bebidas alcoholicas regularmente?',
+                          value: user_alcoholConsumption,
+                          onChanged: (newValue) {
+                            setState(() {
+                              user_alcoholConsumption = newValue;
+                            });
+                          },
+                        ),
+                        BooleanQuestion(
+                          question: 'Sientes estres frecuentemente?',
+                          value: user_stressedFrequently,
+                          onChanged: (newValue) {
+                            setState(() {
+                              user_stressedFrequently = newValue;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
                   ),
 
                   SizedBox(height: 40),
@@ -178,7 +191,7 @@ class _SurveyPageState extends State<SurveyPage> {
                         });
                       }
                     },
-                    child: Text('Save and Continue'),
+                    child: Text('Guardar y continuar'),
                   ),
                 ],
               ),
@@ -191,18 +204,18 @@ class _SurveyPageState extends State<SurveyPage> {
 
   String? _validateNumericInput(String? value, String field) {
     if (value == null || value.isEmpty) {
-      return "Enter $field";
+      return "Digita $field";
     }
     final n = num.tryParse(value);
     if (n == null) {
-      return "Invalid $field value";
+      return "Valor $field invalido";
     }
     return null; // Valid input
   }
 
   String? _validateWeightGoalInput(String? value) {
     if (value == null || value.isEmpty) {
-      return "Enter weight goal";
+      return "Digita meta de peso";
     }
     return null; // Valid input
   }
@@ -242,7 +255,8 @@ class DailyIntakeInput extends StatelessWidget {
         labelText: hint,
         labelStyle: TextStyle(color: const Color.fromARGB(179, 255, 255, 255)),
         enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: const Color.fromARGB(179, 255, 255, 255)),
+          borderSide:
+              BorderSide(color: const Color.fromARGB(179, 255, 255, 255)),
         ),
         focusedBorder: OutlineInputBorder(
           borderSide: BorderSide(color: Colors.greenAccent),

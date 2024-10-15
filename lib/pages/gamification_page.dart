@@ -64,7 +64,7 @@ class _GamificationPageState extends State<GamificationPage> {
         children: [
           Text('Tienda de Recompensas',
               style: TextStyle(
-                  fontSize: 36,
+                  fontSize: 26,
                   fontWeight: FontWeight.bold,
                   color: Colors.white)),
           CircleAvatar(

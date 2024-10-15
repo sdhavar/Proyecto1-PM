@@ -33,7 +33,8 @@ class _MainPageState extends State<MainPage> {
   int totalPoints = 0;
   DateTime currentDate = DateTime.now();
 
-  _MainPageState() : streakController = StreakController(currentDate: DateTime.now());
+  _MainPageState()
+      : streakController = StreakController(currentDate: DateTime.now());
 
   @override
   void initState() {
@@ -60,7 +61,8 @@ class _MainPageState extends State<MainPage> {
       streakController.advanceDays(days);
       currentDate = streakController.currentDate;
       userStatsController.resetStats();
-      if (streakController.streakDays > 0 && streakController.streakDays % 3 == 0) {
+      if (streakController.streakDays > 0 &&
+          streakController.streakDays % 3 == 0) {
         totalPoints += 50; // Add points on streak milestone
         _showStreakNotification(); // Show notification
       }
@@ -73,7 +75,8 @@ class _MainPageState extends State<MainPage> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text('¡Felicidades!'),
-        content: Text('Has ganado 50 puntos por tu racha de ${streakController.streakDays} días.'),
+        content: Text(
+            'Has ganado 50 puntos por tu racha de ${streakController.streakDays} días.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -96,7 +99,8 @@ class _MainPageState extends State<MainPage> {
 
   void _addGoal(String name, dynamic value, String unit) {
     setState(() {
-      userStatsController.userStats.add({'title': name, 'value': '$value $unit'});
+      userStatsController.userStats
+          .add({'title': name, 'value': '$value $unit'});
     });
   }
 
@@ -121,9 +125,11 @@ class _MainPageState extends State<MainPage> {
             children: [
               DropdownButton(
                 value: selectedType,
-                onChanged: (newValue) => setState(() => selectedType = newValue!),
+                onChanged: (newValue) =>
+                    setState(() => selectedType = newValue!),
                 items: ['Específica', 'Genérica']
-                    .map((value) => DropdownMenuItem(value: value, child: Text(value)))
+                    .map((value) =>
+                        DropdownMenuItem(value: value, child: Text(value)))
                     .toList(),
               ),
               if (selectedType == 'Específica')
@@ -134,29 +140,34 @@ class _MainPageState extends State<MainPage> {
               if (selectedType == 'Genérica')
                 DropdownButton(
                   value: selectedGeneralGoal,
-                  onChanged: (newValue) => setState(() => selectedGeneralGoal = newValue!),
+                  onChanged: (newValue) =>
+                      setState(() => selectedGeneralGoal = newValue!),
                   items: generalGoals.map((goal) {
                     return DropdownMenuItem(value: goal, child: Text(goal));
                   }).toList(),
                 ),
               DropdownButton(
                 value: goalCategory,
-                onChanged: (newValue) => setState(() => goalCategory = newValue!),
+                onChanged: (newValue) =>
+                    setState(() => goalCategory = newValue!),
                 items: ['Cuantitativa', 'Cualitativa']
-                    .map((value) => DropdownMenuItem(value: value, child: Text(value)))
+                    .map((value) =>
+                        DropdownMenuItem(value: value, child: Text(value)))
                     .toList(),
               ),
               if (goalCategory == 'Cuantitativa')
                 Column(
                   children: [
                     TextField(
-                      onChanged: (value) => goalQuantity = int.tryParse(value) ?? 0,
+                      onChanged: (value) =>
+                          goalQuantity = int.tryParse(value) ?? 0,
                       decoration: InputDecoration(labelText: 'Cantidad'),
                       keyboardType: TextInputType.number,
                     ),
                     TextField(
                       onChanged: (value) => goalUnit = value,
-                      decoration: InputDecoration(labelText: 'Unidad (ej. libros, páginas)'),
+                      decoration: InputDecoration(
+                          labelText: 'Unidad (ej. libros, páginas)'),
                     ),
                   ],
                 )
@@ -176,13 +187,16 @@ class _MainPageState extends State<MainPage> {
                 String finalGoalName = selectedType == 'Específica'
                     ? goalName
                     : selectedGeneralGoal;
-                if (goalCategory == 'Cuantitativa' && goalQuantity > 0 && goalUnit.isNotEmpty) {
+                if (goalCategory == 'Cuantitativa' &&
+                    goalQuantity > 0 &&
+                    goalUnit.isNotEmpty) {
                   _addGoal(finalGoalName, goalQuantity, goalUnit);
                 } else if (goalCategory == 'Cualitativa') {
-                  _addGoal(finalGoalName, 'No', ''); 
+                  _addGoal(finalGoalName, 'No', '');
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text('Por favor, introduce una cantidad y unidad válida para la meta cuantitativa.'),
+                    content: Text(
+                        'Por favor, introduce una cantidad y unidad válida para la meta cuantitativa.'),
                   ));
                 }
                 Navigator.of(context).pop();
@@ -258,12 +272,14 @@ class _MainPageState extends State<MainPage> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text('Completar Meta'),
-        content: Text('¿Estás seguro de que deseas marcar esta meta como completada?'),
+        content: Text(
+            '¿Estás seguro de que deseas marcar esta meta como completada?'),
         actions: [
           TextButton(
             onPressed: () {
               setState(() {
-                userStatsController.userStats[index]['completed'] = true; // Mark as completed
+                userStatsController.userStats[index]['completed'] =
+                    true; // Mark as completed
               });
               Navigator.of(context).pop();
               _showProgressBar(); // Show the progress bar
@@ -331,7 +347,8 @@ class _MainPageState extends State<MainPage> {
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color(0xFF0056b3),
-                        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                         textStyle: TextStyle(fontSize: 16),
                       ),
                       onPressed: () => Navigator.push(
@@ -341,12 +358,14 @@ class _MainPageState extends State<MainPage> {
                                   streakDays: streakDays,
                                   userPoints: totalPoints,
                                   username: widget.username))),
-                      child: Text('Ir a Gamificación', style: TextStyle(color: Colors.white)),
+                      child: Text('Ir a Gamificación',
+                          style: TextStyle(color: Colors.white)),
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color(0xFF0056b3),
-                        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                         textStyle: TextStyle(fontSize: 16),
                       ),
                       onPressed: () async {
@@ -358,7 +377,8 @@ class _MainPageState extends State<MainPage> {
                           _updateUserStats(result);
                         }
                       },
-                      child: Text('Realizar encuesta', style: TextStyle(color: Colors.white)), 
+                      child: Text('Realizar encuesta',
+                          style: TextStyle(color: Colors.white)),
                     ),
                   ],
                 ),
@@ -382,40 +402,45 @@ class _MainPageState extends State<MainPage> {
       );
 
   Widget _buildHeader() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          children: [
-            IconButton(
-              icon: Icon(Icons.person, color: Colors.black),
-              onPressed: _confirmLogout,
-            ),
-            SizedBox(width: 8),
-            Text(
-              '¡Hola ${widget.username}! ',
-              style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black),
-            ),
-          ],
-        ),
-        Text(
-          'Aquí están tus estadísticas y metas',
-          style: TextStyle(fontSize: 16, color: Colors.black),
-        ),
-        Text('Fecha actual: ${currentDate.toLocal().toString().split(' ')[0]}',
-            style: TextStyle(fontSize: 16)),
-        ElevatedButton(
-          onPressed: () => _advanceDays(1),
-          child: Text('Avanzar 1 día'),
-        ),
-        ElevatedButton(
-          onPressed: () => _advanceDays(7),
-          child: Text('Avanzar 7 días'),
-        ),
-      ],
+    return SingleChildScrollView(
+      // Add this line
+      scrollDirection: Axis.horizontal, // This allows horizontal scrolling
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              IconButton(
+                icon: Icon(Icons.person, color: Colors.black),
+                onPressed: _confirmLogout,
+              ),
+              SizedBox(width: 8),
+              Text(
+                '¡Hola ${widget.username}! ',
+                style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black),
+              ),
+            ],
+          ),
+          Text(
+            'Aquí están tus estadísticas y metas',
+            style: TextStyle(fontSize: 16, color: Colors.black),
+          ),
+          Text(
+              'Fecha actual: ${currentDate.toLocal().toString().split(' ')[0]}',
+              style: TextStyle(fontSize: 16)),
+          ElevatedButton(
+            onPressed: () => _advanceDays(1),
+            child: Text('Avanzar 1 día'),
+          ),
+          ElevatedButton(
+            onPressed: () => _advanceDays(7),
+            child: Text('Avanzar 7 días'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -459,28 +484,33 @@ class _MainPageState extends State<MainPage> {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             SizedBox(height: 10),
             Column(
-              children: userStatsController.userStats.map((goal) => ListTile(
-                    title: Text(goal['title']),
-                    subtitle: Text(goal['value']),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.check, color: Colors.green),
-                          onPressed: () => _confirmCompleteGoal(userStatsController.userStats.indexOf(goal)),
+              children: userStatsController.userStats
+                  .map((goal) => ListTile(
+                        title: Text(goal['title']),
+                        subtitle: Text(goal['value']),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.check, color: Colors.green),
+                              onPressed: () => _confirmCompleteGoal(
+                                  userStatsController.userStats.indexOf(goal)),
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.delete, color: Colors.red),
+                              onPressed: () => _confirmDeleteGoal(
+                                  userStatsController.userStats.indexOf(goal)),
+                            ),
+                          ],
                         ),
-                        IconButton(
-                          icon: Icon(Icons.delete, color: Colors.red),
-                          onPressed: () => _confirmDeleteGoal(userStatsController.userStats.indexOf(goal)),
-                        ),
-                      ],
-                    ),
-                  )).toList(),
+                      ))
+                  .toList(),
             ),
             TextButton(
               style: TextButton.styleFrom(
                   backgroundColor: Color(0xFF0056b3),
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12)),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12)),
               onPressed: _showAddGoalDialog,
               child: Text('Añadir meta', style: TextStyle(color: Colors.white)),
             ),

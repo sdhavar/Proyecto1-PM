@@ -328,11 +328,21 @@ class _MainPageState extends State<MainPage> {
       initialDate: currentDate,
       firstDate: DateTime(2000), // Set a reasonable first date
       lastDate: DateTime.now(),   // Prevent future dates from being selected
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.dark().copyWith(
+            primaryColor: Colors.black,
+            colorScheme: ColorScheme.dark(primary: Colors.black, secondary: Colors.black),
+            buttonTheme: ButtonThemeData(textTheme: ButtonTextTheme.primary),
+          ),
+          child: child ?? SizedBox(),
+        );
+      },
     );
 
     if (picked != null && picked != currentDate) {
       setState(() {
-        currentDate = picked; // Update the currentDate with the selected date
+        currentDate = picked; 
       });
     }
   }
@@ -357,57 +367,65 @@ class _MainPageState extends State<MainPage> {
                 SizedBox(height: 40),
                 _buildStreakWidget(),
                 SizedBox(height: 40),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => GamificationPage(
-                                  streakDays: streakDays,
-                                  userPoints: totalPoints,
-                                  username: widget.username))),
-                      child: Text('Ir a Gamificación',
-                          style: TextStyle(color: Colors.white)),
-                    ),
-                    ElevatedButton(
-                      onPressed: () async {
-                        final result = await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => SurveyPage()));
-                        if (result != null) {
-                          _updateUserStats(result);
-                        }
-                      },
-                      child: Text('Realizar encuesta',
-                          style: TextStyle(color: Colors.white)),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 40),
               ],
             ),
           ),
         ],
       ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: '',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.list),
+            label: '',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.attach_money),
+            label: '',
+          ),
+        ],
+        onTap: (index) {
+          if (index == 0) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => MainPage(username: widget.username)),
+            );
+          } else if (index == 1) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => SurveyPage()),
+            );
+          } else if (index == 2) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => GamificationPage(
+                streakDays: streakDays,
+                userPoints: totalPoints,
+                username: widget.username,
+              )),
+            );
+          }
+        },
+      ),
     );
   }
 
   Widget _buildGradientBackground() => Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF92a8d1), Color(0xFFf7cac9)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-      );
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        colors: [Color(0xFF92a8d1), Color(0xFFf7cac9)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ),
+    ),
+  );
 
   Widget _buildHeader() {
     return SingleChildScrollView(
-      scrollDirection: Axis.horizontal, // This allows horizontal scrolling
+      scrollDirection: Axis.horizontal,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -420,7 +438,7 @@ class _MainPageState extends State<MainPage> {
                     icon: Icon(Icons.person, color: Colors.black),
                     onPressed: _confirmLogout,
                   ),
-                  SizedBox(height: 4), // Space between icon and text
+                  SizedBox(height: 4),
                   Text(
                     '¡Hola ${widget.username}! ',
                     style: TextStyle(
@@ -430,28 +448,28 @@ class _MainPageState extends State<MainPage> {
                   ),
                 ],
               ),
-              SizedBox(width: 10), // Space between icon and text
+              SizedBox(width: 10),
             ],
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              SizedBox(height: 8), // Optional spacing above the text
+              SizedBox(height: 8),
               Text(
                 'Aquí están tus estadísticas y metas',
                 style: TextStyle(fontSize: 16, color: Colors.black),
               ),
-              SizedBox(height: 4), // Space between stats label and current date
+              SizedBox(height: 4),
               Text(
                 'Fecha actual: ${currentDate.toLocal().toString().split(' ')[0]}',
                 style: TextStyle(fontSize: 16),
               ),
             ],
           ),
-          SizedBox(width: 20), // Add space before the button
+          SizedBox(width: 20),
           ElevatedButton(
-            onPressed: () => _selectDate(context), // Show date picker
-            child: Icon(Icons.calendar_today, size: 24), // Calendar icon button
+            onPressed: () => _selectDate(context),
+            child: Icon(Icons.calendar_today, size: 24, color: Colors.black),
           ),
         ],
       ),
@@ -504,7 +522,7 @@ class _MainPageState extends State<MainPage> {
                   icon: Icon(Icons.add, color: Colors.black),
                   onPressed: _showAddGoalDialog,
                   tooltip: 'Añadir meta',
-                  color: Color(0xFF0056b3), // Button background color
+                  color: Color(0xFF0056b3),
                 ),
               ],
             ),
@@ -543,15 +561,32 @@ class _MainPageState extends State<MainPage> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         if (streakDays >= 3)
-          Row(
-            children: [
-              Icon(Icons.local_fire_department, color: Colors.red, size: 32),
-              SizedBox(width: 8),
-              Text(
-                '$streakDays días',
-                style: TextStyle(fontSize: 14),
-              ),
-            ],
+          Container(
+            width: 100, // Adjust the width based on your image dimensions
+            height: 40, // Adjust the height based on your image dimensions
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.8),
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  spreadRadius: 2,
+                  blurRadius: 5,
+                  offset: Offset(0, 3), // changes position of shadow
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.local_fire_department, color: Colors.black, size: 32),
+                SizedBox(width: 8),
+                Text(
+                  '$streakDays días',
+                  style: TextStyle(fontSize: 14, color: Colors.black),
+                ),
+              ],
+            ),
           ),
       ],
     );

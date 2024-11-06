@@ -69,7 +69,7 @@ class _SurveyPageState extends State<SurveyPage> {
             child: Form(
               key: _formKey,
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   SizedBox(height: 80),
                   Center(
@@ -117,64 +117,59 @@ class _SurveyPageState extends State<SurveyPage> {
                   ),
                   SizedBox(height: 40),
 
-                  // Wrap boolean questions in SingleChildScrollView
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Column(
-                      children: [
-                        BooleanQuestion(
-                          question: 'Haces actividad fisica diariamente?',
-                          value: user_physicalActivity,
-                          onChanged: (newValue) {
-                            setState(() {
-                              user_physicalActivity = newValue;
-                            });
-                          },
-                        ),
-                        BooleanQuestion(
-                          question:
-                              'Consumes frutas y verduras todos los dias?',
-                          value: user_fruitsVegetables,
-                          onChanged: (newValue) {
-                            setState(() {
-                              user_fruitsVegetables = newValue;
-                            });
-                          },
-                        ),
-                        BooleanQuestion(
-                          question: 'Evitas alimentos procesados?',
-                          value: user_avoidProcessedFood,
-                          onChanged: (newValue) {
-                            setState(() {
-                              user_avoidProcessedFood = newValue;
-                            });
-                          },
-                        ),
-                        BooleanQuestion(
-                          question:
-                              'Consumes bebidas alcoholicas regularmente?',
-                          value: user_alcoholConsumption,
-                          onChanged: (newValue) {
-                            setState(() {
-                              user_alcoholConsumption = newValue;
-                            });
-                          },
-                        ),
-                        BooleanQuestion(
-                          question: 'Sientes estres frecuentemente?',
-                          value: user_stressedFrequently,
-                          onChanged: (newValue) {
-                            setState(() {
-                              user_stressedFrequently = newValue;
-                            });
-                          },
-                        ),
-                      ],
-                    ),
+                  Column(
+                    children: [
+                      BooleanQuestion(
+                        question: 'Haces actividad fisica diariamente?',
+                        value: user_physicalActivity,
+                        onChanged: (newValue) {
+                          setState(() {
+                            user_physicalActivity = newValue;
+                          });
+                        },
+                      ),
+                      BooleanQuestion(
+                        question: 'Consumes frutas y verduras todos los dias?',
+                        value: user_fruitsVegetables,
+                        onChanged: (newValue) {
+                          setState(() {
+                            user_fruitsVegetables = newValue;
+                          });
+                        },
+                      ),
+                      BooleanQuestion(
+                        question: 'Evitas alimentos procesados?',
+                        value: user_avoidProcessedFood,
+                        onChanged: (newValue) {
+                          setState(() {
+                            user_avoidProcessedFood = newValue;
+                          });
+                        },
+                      ),
+                      BooleanQuestion(
+                        question: 'Consumes bebidas alcoholicas regularmente?',
+                        value: user_alcoholConsumption,
+                        onChanged: (newValue) {
+                          setState(() {
+                            user_alcoholConsumption = newValue;
+                          });
+                        },
+                      ),
+                      BooleanQuestion(
+                        question: 'Sientes estres frecuentemente?',
+                        value: user_stressedFrequently,
+                        onChanged: (newValue) {
+                          setState(() {
+                            user_stressedFrequently = newValue;
+                          });
+                        },
+                      ),
+                    ],
                   ),
 
                   SizedBox(height: 40),
-                  ElevatedButton(
+                  IconButton(
+                    icon: Icon(Icons.save),
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
                         Navigator.pop(context, {
@@ -191,7 +186,9 @@ class _SurveyPageState extends State<SurveyPage> {
                         });
                       }
                     },
-                    child: Text('Guardar y continuar'),
+                    tooltip: 'Save and continue',
+                    iconSize: 30.0,
+                    color: Colors.white,
                   ),
                 ],
               ),
@@ -284,11 +281,13 @@ class BooleanQuestion extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          question,
-          style: TextStyle(
-            fontSize: 18,
-            color: Colors.white,
+        Expanded(
+          child: Text(
+            question,
+            style: TextStyle(
+              fontSize: 18,
+              color: Colors.white,
+            ),
           ),
         ),
         Switch(

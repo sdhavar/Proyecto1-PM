@@ -1,6 +1,35 @@
 import 'package:flutter/material.dart';
 import 'main_page.dart';
 
+enum UserLevel {
+  Beginner,
+  Intermediate,
+  Advanced,
+  Expert,
+}
+
+class PointsToLevel {
+  static UserLevel getLevel(int points) {
+    if (points < 50) {
+      return UserLevel.Beginner;
+    } else if (points < 100) {
+      return UserLevel.Intermediate;
+    } else if (points < 150) {
+      return UserLevel.Advanced;
+    } else {
+      return UserLevel.Expert;
+    }
+  }
+}
+
+class Collectible {
+  final String name;
+  final String description;
+  final String imagePath;
+
+  Collectible({required this.name, required this.description, required this.imagePath});
+}
+
 class GamificationPage extends StatefulWidget {
   final int userPoints; 
   final String username; 
@@ -14,11 +43,28 @@ class GamificationPage extends StatefulWidget {
 
 class _GamificationPageState extends State<GamificationPage> {
   late int updatedPoints;
+  List<Collectible> unlockedCollectibles = [];
+
+  final List<Collectible> collectibles = [
+    Collectible(name: 'First Steps', description: 'Complete your first task.', imagePath: 'assets/badges/first_steps.png'),
+    Collectible(name: 'Goal Crusher', description: 'Complete 10 objectives.', imagePath: 'assets/badges/goal_crusher.png'),
+    // More collectibles can be added here...
+  ];
 
   @override
   void initState() {
     super.initState();
     updatedPoints = widget.userPoints;
+  }
+
+  UserLevel get currentUserLevel => PointsToLevel.getLevel(updatedPoints);
+
+  void completeObjective(String objectiveName) {
+    // Logic for completing an objective...
+    if (objectiveName == 'First Steps' && !unlockedCollectibles.contains(collectibles[0])) {
+      unlockedCollectibles.add(collectibles[0]);
+    } 
+    // Add more conditions for additional collectibles...
   }
 
   @override
@@ -32,13 +78,14 @@ class _GamificationPageState extends State<GamificationPage> {
             child: Column(
               children: [
                 SizedBox(height: 40),
-                _buildHeader(),
+                _buildHeader(context),
                 SizedBox(height: 20),
                 _buildPointsCard(),
                 SizedBox(height: 20),
                 _buildRewardsList(context),
                 SizedBox(height: 20),
-                _buildBackToMainPageButton(context),
+                _buildCollectiblesList(),
+                SizedBox(height: 20),
               ],
             ),
           ),
@@ -59,18 +106,32 @@ class _GamificationPageState extends State<GamificationPage> {
         width: double.infinity,
       );
 
-  Widget _buildHeader() => Row(
+  Widget _buildHeader(BuildContext context) => Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text('Tienda de Recompensas',
-              style: TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white)),
-          CircleAvatar(
-            backgroundColor: Color(0xFF034f84),
-            child: Icon(Icons.store, color: Colors.white, size: 32),
+          Row(
+            children: [
+              IconButton(
+                icon: Icon(Icons.arrow_back, color: Colors.white),
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MainPage(
+                        username: widget.username,
+                      ),
+                    ),
+                  );
+                },
+              ),
+              Text('Tienda de Recompensas',
+                  style: TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white)),
+            ],
           ),
+          // Removed the CircleAvatar with store icon
         ],
       );
 
@@ -80,11 +141,20 @@ class _GamificationPageState extends State<GamificationPage> {
             Text('Puntos acumulados',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             SizedBox(height: 10),
-            Text('$updatedPoints', // Update the points displayed
+            Text('$updatedPoints', 
                 style: TextStyle(
                     fontSize: 48,
                     color: Colors.blueAccent,
                     fontWeight: FontWeight.bold)),
+            SizedBox(height: 10),
+            Text('Nivel: ${currentUserLevel.toString().split('.').last}',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            ElevatedButton(
+              onPressed: () {
+                _showLevelBenefits(context);
+              },
+              child: Text('Ver beneficios de nivel'),
+            ),
           ],
         ),
       );
@@ -108,9 +178,10 @@ class _GamificationPageState extends State<GamificationPage> {
               TextButton(
                 onPressed: () {
                   setState(() {
-                    updatedPoints -= cost; // Deduct points after claiming a reward
+                    updatedPoints -= cost; 
                   });
-                  Navigator.of(context).pop(); // Close the dialog
+                  Navigator.of(context).pop();
+                  completeObjective('Descuento en tienda'); // Example of completing an objective
                 },
                 child: Text('Cerrar'),
               ),
@@ -133,7 +204,7 @@ class _GamificationPageState extends State<GamificationPage> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop();
               },
               child: Text('Cerrar'),
             ),
@@ -156,7 +227,7 @@ class _GamificationPageState extends State<GamificationPage> {
                   title: Text(reward['title']),
                   trailing: ElevatedButton(
                     onPressed: () => _claimReward(context, reward['cost']),
-                    child: Text('Canjear (${reward['cost']} pts)'),
+                    child: Text('Canjear (${reward['cost']} pts)', style: TextStyle(color: Colors.black)), // Changed text color to black
                   ),
                 );
               }).toList(),
@@ -165,24 +236,59 @@ class _GamificationPageState extends State<GamificationPage> {
         ),
       );
 
-  Widget _buildBackToMainPageButton(BuildContext context) => Center(
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => MainPage(
-                  username: widget.username,
-                ),
-              ),
-            );
-          },
-          child: Text('Volver a la página principal'),
-          style: ElevatedButton.styleFrom(
-            foregroundColor: Color(0xFF4ba3c7),
-            backgroundColor: Colors.white,
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          ),
+  void _showLevelBenefits(BuildContext context) {
+    String benefits;
+    switch (currentUserLevel) {
+      case UserLevel.Beginner:
+        benefits = 'Bonus: 5 Bonus Points';
+        break;
+      case UserLevel.Intermediate:
+        benefits = 'Bonus: 10 Bonus Points';
+        break;
+      case UserLevel.Advanced:
+        benefits = 'Bonus: 15 Bonus Points';
+        break;
+      case UserLevel.Expert:
+        benefits = 'Bonus: 20 Bonus Points + Exclusive Reward!';
+        break;
+    }
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Beneficios de Nivel: ${currentUserLevel.toString().split('.').last}'),
+          content: Text(benefits),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cerrar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildCollectiblesList() => _buildCard(
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Unlockable Collectibles',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+            SizedBox(height: 10),
+            Column(
+              children: unlockedCollectibles.map((collectible) {
+                return ListTile(
+                  title: Text(collectible.name),
+                  subtitle: Text(collectible.description),
+                  leading: Image.asset(collectible.imagePath, width: 50, height: 50),
+                );
+              }).toList(),
+            ),
+          ],
         ),
       );
 

@@ -321,6 +321,22 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
+  // Method to handle date selection
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: currentDate,
+      firstDate: DateTime(2000), // Set a reasonable first date
+      lastDate: DateTime.now(),   // Prevent future dates from being selected
+    );
+
+    if (picked != null && picked != currentDate) {
+      setState(() {
+        currentDate = picked; // Update the currentDate with the selected date
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -397,19 +413,24 @@ class _MainPageState extends State<MainPage> {
         children: [
           Row(
             children: [
-              IconButton(
-                icon: Icon(Icons.person, color: Colors.black),
-                onPressed: _confirmLogout,
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.person, color: Colors.black),
+                    onPressed: _confirmLogout,
+                  ),
+                  SizedBox(height: 4), // Space between icon and text
+                  Text(
+                    '¡Hola ${widget.username}! ',
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black),
+                  ),
+                ],
               ),
               SizedBox(width: 10), // Space between icon and text
-              Text(
-                '¡Hola ${widget.username}! ',
-                style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black),
-              ),
-              SizedBox(width: 20), // Space after the greeting
             ],
           ),
           Column(
@@ -422,23 +443,15 @@ class _MainPageState extends State<MainPage> {
               ),
               SizedBox(height: 4), // Space between stats label and current date
               Text(
-                  'Fecha actual: ${currentDate.toLocal().toString().split(' ')[0]}',
-                  style: TextStyle(fontSize: 16)),
+                'Fecha actual: ${currentDate.toLocal().toString().split(' ')[0]}',
+                style: TextStyle(fontSize: 16),
+              ),
             ],
           ),
-          SizedBox(width: 20), // Add space before the buttons
-          Row(
-            children: [
-              ElevatedButton(
-                onPressed: () => _advanceDays(1),
-                child: Icon(Icons.arrow_forward, size: 24), // Icon for 1 day
-              ),
-              SizedBox(width: 10), // Space between the two buttons
-              ElevatedButton(
-                onPressed: () => _advanceDays(7),
-                child: Icon(Icons.arrow_forward_ios, size: 24), // Icon for 7 days
-              ),
-            ],
+          SizedBox(width: 20), // Add space before the button
+          ElevatedButton(
+            onPressed: () => _selectDate(context), // Show date picker
+            child: Icon(Icons.calendar_today, size: 24), // Calendar icon button
           ),
         ],
       ),
@@ -481,8 +494,20 @@ class _MainPageState extends State<MainPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Metas',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Metas',
+                    style: TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold)),
+                IconButton(
+                  icon: Icon(Icons.add, color: Colors.black),
+                  onPressed: _showAddGoalDialog,
+                  tooltip: 'Añadir meta',
+                  color: Color(0xFF0056b3), // Button background color
+                ),
+              ],
+            ),
             SizedBox(height: 10),
             Column(
               children: userStatsController.userStats
@@ -506,14 +531,6 @@ class _MainPageState extends State<MainPage> {
                         ),
                       ))
                   .toList(),
-            ),
-            TextButton(
-              style: TextButton.styleFrom(
-                  backgroundColor: Color(0xFF0056b3),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12)),
-              onPressed: _showAddGoalDialog,
-              child: Text('Añadir meta', style: TextStyle(color: Colors.white)),
             ),
           ],
         ),

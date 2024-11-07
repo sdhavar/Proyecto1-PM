@@ -29,7 +29,7 @@ class _MainPageState extends State<MainPage> {
   String selectedType = 'Específica', goalCategory = 'Cuantitativa';
   int goalQuantity = 0;
   String goalUnit = '';
-  String selectedGeneralGoal = 'Sueño';
+  String? selectedGoal;
   int totalPoints = 0;
   DateTime currentDate = DateTime.now();
 
@@ -61,8 +61,7 @@ class _MainPageState extends State<MainPage> {
       streakController.advanceDays(days);
       currentDate = streakController.currentDate;
       userStatsController.resetStats();
-      if (streakController.streakDays > 0 &&
-          streakController.streakDays % 3 == 0) {
+      if (streakController.streakDays > 0 && streakController.streakDays % 3 == 0) {
         totalPoints += 50;
         _showStreakNotification();
       }
@@ -75,8 +74,7 @@ class _MainPageState extends State<MainPage> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text('¡Felicidades!'),
-        content: Text(
-            'Has ganado 50 puntos por tu racha de ${streakController.streakDays} días.'),
+        content: Text('Has ganado 50 puntos por tu racha de ${streakController.streakDays} días.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -99,104 +97,159 @@ class _MainPageState extends State<MainPage> {
 
   void _addGoal(String name, dynamic value, String unit) {
     setState(() {
-      userStatsController.userStats
-          .add({'title': name, 'value': '$value $unit'});
+      userStatsController.userStats.add({'title': name, 'value': '$value $unit'});
     });
   }
 
   void _showAddGoalDialog() {
     String goalName = '';
     String goalUnit = '';
-    List<String> generalGoals = [
-      'Sueño',
-      'Agua',
-      'Caminata',
-      'Peso',
-      'Calorías'
+    bool isCompleted = false;
+
+    List<Map<String, dynamic>> generalGoals = [
+      {'name': 'Sueño', 'icon': Icons.nights_stay},
+      {'name': 'Agua', 'icon': Icons.water_drop},
+      {'name': 'Caminata', 'icon': Icons.directions_walk},
+      {'name': 'Peso', 'icon': Icons.fitness_center},
+      {'name': 'Calorías', 'icon': Icons.local_fire_department},
     ];
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text('Añadir Meta'),
-        content: StatefulBuilder(
-          builder: (context, setState) => Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              DropdownButton(
-                value: selectedType,
-                onChanged: (newValue) =>
-                    setState(() => selectedType = newValue!),
-                items: ['Específica', 'Genérica']
-                    .map((value) =>
-                        DropdownMenuItem(value: value, child: Text(value)))
-                    .toList(),
-              ),
-              if (selectedType == 'Específica')
-                TextField(
-                  onChanged: (value) => goalName = value,
-                  decoration: InputDecoration(labelText: 'Nombre de la Meta'),
-                ),
-              if (selectedType == 'Genérica')
-                DropdownButton(
-                  value: selectedGeneralGoal,
-                  onChanged: (newValue) =>
-                      setState(() => selectedGeneralGoal = newValue!),
-                  items: generalGoals.map((goal) {
-                    return DropdownMenuItem(value: goal, child: Text(goal));
-                  }).toList(),
-                ),
-              DropdownButton(
-                value: goalCategory,
-                onChanged: (newValue) =>
-                    setState(() => goalCategory = newValue!),
-                items: ['Cuantitativa', 'Cualitativa']
-                    .map((value) =>
-                        DropdownMenuItem(value: value, child: Text(value)))
-                    .toList(),
-              ),
-              if (goalCategory == 'Cuantitativa')
-                Column(
+        content: SingleChildScrollView(
+          child: StatefulBuilder(
+            builder: (context, setState) => Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    TextField(
-                      onChanged: (value) =>
-                          goalQuantity = int.tryParse(value) ?? 0,
-                      decoration: InputDecoration(labelText: 'Cantidad'),
-                      keyboardType: TextInputType.number,
+                    ChoiceChip(
+                      label: Text('Específica'),
+                      selected: selectedType == 'Específica',
+                      onSelected: (selected) {
+                        setState(() {
+                          selectedType = 'Específica';
+                          selectedGoal = null;
+                        });
+                      },
                     ),
-                    TextField(
-                      onChanged: (value) => goalUnit = value,
-                      decoration: InputDecoration(
-                          labelText: 'Unidad (ej. libros, páginas)'),
+                    ChoiceChip(
+                      label: Text('Genérica'),
+                      selected: selectedType == 'Genérica',
+                      onSelected: (selected) {
+                        setState(() {
+                          selectedType = 'Genérica';
+                          selectedGoal = null;
+                        });
+                      },
                     ),
                   ],
-                )
-              else
-                SwitchListTile(
-                  title: Text('Cumplida'),
-                  value: false,
-                  onChanged: (value) {},
                 ),
-            ],
+                if (selectedType == 'Específica')
+                  TextField(
+                    onChanged: (value) => goalName = value,
+                    decoration: InputDecoration(labelText: 'Nombre de la Meta'),
+                  ),
+                if (selectedType == 'Genérica')
+                  Column(
+                    children: generalGoals.map((goal) {
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            selectedGoal = goal['name'];
+                          });
+                        },
+                        child: Container(
+                          padding: EdgeInsets.all(8),
+                          margin: EdgeInsets.symmetric(vertical: 5),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: selectedGoal == goal['name'] ? Colors.blue : Colors.grey,
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Column(
+                            children: [
+                              Icon(goal['icon'], size: 40, color: Colors.black),
+                              SizedBox(height: 5),
+                              Text(goal['name']),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    ChoiceChip(
+                      label: Text('Cuantitativa'),
+                      selected: goalCategory == 'Cuantitativa',
+                      onSelected: (selected) {
+                        setState(() {
+                          goalCategory = 'Cuantitativa';
+                        });
+                      },
+                    ),
+                    ChoiceChip(
+                      label: Text('Cualitativa'),
+                      selected: goalCategory == 'Cualitativa',
+                      onSelected: (selected) {
+                        setState(() {
+                          goalCategory = 'Cualitativa';
+                        });
+                      },
+                    ),
+                  ],
+                ),
+                if (goalCategory == 'Cuantitativa')
+                  Column(
+                    children: [
+                      TextField(
+                        onChanged: (value) => goalQuantity = int.tryParse(value) ?? 0,
+                        decoration: InputDecoration(labelText: 'Cantidad'),
+                        keyboardType: TextInputType.number,
+                      ),
+                      TextField(
+                        onChanged: (value) => goalUnit = value,
+                        decoration: InputDecoration(labelText: 'Unidad (ej. libros, páginas)'),
+                      ),
+                    ],
+                  )
+                else if (goalCategory == 'Cualitativa')
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('¿Completa?'),
+                      Switch(
+                        value: isCompleted,
+                        onChanged: (value) {
+                          setState(() {
+                            isCompleted = value;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+              ],
+            ),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () {
-              if (goalName.isNotEmpty || selectedType == 'Genérica') {
-                String finalGoalName = selectedType == 'Específica'
-                    ? goalName
-                    : selectedGeneralGoal;
-                if (goalCategory == 'Cuantitativa' &&
-                    goalQuantity > 0 &&
-                    goalUnit.isNotEmpty) {
+              if (goalName.isNotEmpty || selectedGoal != null) {
+                String finalGoalName = selectedType == 'Específica' ? goalName : selectedGoal!;
+                if (goalCategory == 'Cuantitativa' && goalQuantity > 0 && goalUnit.isNotEmpty) {
                   _addGoal(finalGoalName, goalQuantity, goalUnit);
                 } else if (goalCategory == 'Cualitativa') {
-                  _addGoal(finalGoalName, 'No', '');
+                  _addGoal(finalGoalName, isCompleted ? 'Sí' : 'No', '');
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text(
-                        'Por favor, introduce una cantidad y unidad válida para la meta cuantitativa.'),
+                    content: Text('Por favor, introduce una cantidad y unidad válida para la meta cuantitativa.'),
                   ));
                 }
                 Navigator.of(context).pop();
@@ -272,17 +325,15 @@ class _MainPageState extends State<MainPage> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text('Completar Meta'),
-        content: Text(
-            '¿Estás seguro de que deseas marcar esta meta como completada?'),
+        content: Text('¿Estás seguro de que deseas marcar esta meta como completada?'),
         actions: [
           TextButton(
             onPressed: () {
               setState(() {
-                userStatsController.userStats[index]['completed'] =
-                    true; // Mark as completed
+                userStatsController.userStats[index]['completed'] = true;
               });
               Navigator.of(context).pop();
-              _showProgressBar(); // Show the progress bar
+              _showProgressBar();
             },
             child: Text('Sí'),
           ),
@@ -305,7 +356,7 @@ class _MainPageState extends State<MainPage> {
             children: [
               Text('Progreso de Compleción'),
               SizedBox(height: 10),
-              LinearProgressIndicator(value: 1.0), // Simulate completion
+              LinearProgressIndicator(value: 1.0),
               SizedBox(height: 10),
               Text('¡Meta completada!'),
             ],
@@ -321,13 +372,12 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-  // Method to handle date selection
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: currentDate,
-      firstDate: DateTime(2000), // Set a reasonable first date
-      lastDate: DateTime.now(),   // Prevent future dates from being selected
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
       builder: (BuildContext context, Widget? child) {
         return Theme(
           data: ThemeData.dark().copyWith(
@@ -347,26 +397,39 @@ class _MainPageState extends State<MainPage> {
     }
   }
 
+  Future<void> _navigateToSurveyPage() async {
+    final surveyData = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => SurveyPage()),
+    );
+
+    if (surveyData != null) {
+      _updateUserStats(surveyData);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size; 
+
     return Scaffold(
       body: Stack(
         children: [
           _buildGradientBackground(),
           SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(screenSize.width * 0.04),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                SizedBox(height: 40),
+                SizedBox(height: screenSize.height * 0.02), // Smaller spacing
                 _buildHeader(),
-                SizedBox(height: 20),
-                _buildStatsCard(),
-                SizedBox(height: 40),
-                _buildGoalsCard(),
-                SizedBox(height: 40),
+                SizedBox(height: screenSize.height * 0.02),
+                _buildStatsCard(screenSize), 
+                SizedBox(height: screenSize.height * 0.02),
+                _buildGoalsCard(screenSize), 
+                SizedBox(height: screenSize.height * 0.02),
                 _buildStreakWidget(),
-                SizedBox(height: 40),
+                SizedBox(height: screenSize.height * 0.02),
               ],
             ),
           ),
@@ -394,10 +457,7 @@ class _MainPageState extends State<MainPage> {
               MaterialPageRoute(builder: (context) => MainPage(username: widget.username)),
             );
           } else if (index == 1) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => SurveyPage()),
-            );
+            _navigateToSurveyPage(); 
           } else if (index == 2) {
             Navigator.push(
               context,
@@ -476,24 +536,24 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-  Widget _buildStatsCard() {
+  Widget _buildStatsCard(Size screenSize) {
     return Card(
       color: Colors.white.withOpacity(0.8),
       elevation: 4,
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(screenSize.width * 0.04),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Estadísticas',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                style: TextStyle(fontSize: screenSize.width * 0.05, fontWeight: FontWeight.bold)),
             SizedBox(height: 10),
             ...userStatsController.userStats.take(5).map((stat) {
               return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(stat['title']),
-                  Text(stat['value']),
+                  Flexible(child: Text(stat['title'], softWrap: true)),
+                  Flexible(child: Text(stat['value'], textAlign: TextAlign.end)),
                 ],
               );
             }).toList(),
@@ -503,12 +563,12 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-  Widget _buildGoalsCard() {
+  Widget _buildGoalsCard(Size screenSize) {
     return Card(
       color: Colors.white.withOpacity(0.8),
       elevation: 4,
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(screenSize.width * 0.04),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -516,8 +576,7 @@ class _MainPageState extends State<MainPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('Metas',
-                    style: TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold)),
+                    style: TextStyle(fontSize: screenSize.width * 0.05, fontWeight: FontWeight.bold)),
                 IconButton(
                   icon: Icon(Icons.add, color: Colors.black),
                   onPressed: _showAddGoalDialog,
@@ -562,8 +621,8 @@ class _MainPageState extends State<MainPage> {
       children: [
         if (streakDays >= 3)
           Container(
-            width: 100, // Adjust the width based on your image dimensions
-            height: 40, // Adjust the height based on your image dimensions
+            width: 100,
+            height: 40,
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.8),
               borderRadius: BorderRadius.circular(8),
@@ -572,7 +631,7 @@ class _MainPageState extends State<MainPage> {
                   color: Colors.black.withOpacity(0.1),
                   spreadRadius: 2,
                   blurRadius: 5,
-                  offset: Offset(0, 3), // changes position of shadow
+                  offset: Offset(0, 3),
                 ),
               ],
             ),

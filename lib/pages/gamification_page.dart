@@ -199,7 +199,7 @@ class _GamificationPageState extends State<GamificationPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Mensaje'),
+          title: Text('¡Ojo!'),
           content: Text(message),
           actions: [
             TextButton(

@@ -61,7 +61,8 @@ class _MainPageState extends State<MainPage> {
       streakController.advanceDays(days);
       currentDate = streakController.currentDate;
       userStatsController.resetStats();
-      if (streakController.streakDays > 0 && streakController.streakDays % 3 == 0) {
+      if (streakController.streakDays > 0 &&
+          streakController.streakDays % 3 == 0) {
         totalPoints += 50;
         _showStreakNotification();
       }
@@ -74,7 +75,8 @@ class _MainPageState extends State<MainPage> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text('¡Felicidades!'),
-        content: Text('Has ganado 50 puntos por tu racha de ${streakController.streakDays} días.'),
+        content: Text(
+            'Has ganado 50 puntos por tu racha de ${streakController.streakDays} días.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -97,7 +99,8 @@ class _MainPageState extends State<MainPage> {
 
   void _addGoal(String name, dynamic value, String unit) {
     setState(() {
-      userStatsController.userStats.add({'title': name, 'value': '$value $unit'});
+      userStatsController.userStats
+          .add({'title': name, 'value': '$value $unit'});
     });
   }
 
@@ -167,13 +170,15 @@ class _MainPageState extends State<MainPage> {
                           margin: EdgeInsets.symmetric(vertical: 5),
                           decoration: BoxDecoration(
                             border: Border.all(
-                              color: selectedGoal == goal['name'] ? Colors.blue : Colors.grey,
+                              color: selectedGoal == goal['name']
+                                  ? Colors.blue
+                                  : Colors.grey,
                             ),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Column(
                             children: [
-                              Icon(goal['icon'], size: 40, color: Colors.black),
+                              Icon(goal['icon'], size: 30, color: Colors.black),
                               SizedBox(height: 5),
                               Text(goal['name']),
                             ],
@@ -185,23 +190,27 @@ class _MainPageState extends State<MainPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    ChoiceChip(
-                      label: Text('Cuantitativa'),
-                      selected: goalCategory == 'Cuantitativa',
-                      onSelected: (selected) {
-                        setState(() {
-                          goalCategory = 'Cuantitativa';
-                        });
-                      },
+                    Flexible(
+                      child: ChoiceChip(
+                        label: Text('Cuantitativa'),
+                        selected: goalCategory == 'Cuantitativa',
+                        onSelected: (selected) {
+                          setState(() {
+                            goalCategory = 'Cuantitativa';
+                          });
+                        },
+                      ),
                     ),
-                    ChoiceChip(
-                      label: Text('Cualitativa'),
-                      selected: goalCategory == 'Cualitativa',
-                      onSelected: (selected) {
-                        setState(() {
-                          goalCategory = 'Cualitativa';
-                        });
-                      },
+                    Flexible(
+                      child: ChoiceChip(
+                        label: Text('Cualitativa'),
+                        selected: goalCategory == 'Cualitativa',
+                        onSelected: (selected) {
+                          setState(() {
+                            goalCategory = 'Cualitativa';
+                          });
+                        },
+                      ),
                     ),
                   ],
                 ),
@@ -209,13 +218,15 @@ class _MainPageState extends State<MainPage> {
                   Column(
                     children: [
                       TextField(
-                        onChanged: (value) => goalQuantity = int.tryParse(value) ?? 0,
+                        onChanged: (value) =>
+                            goalQuantity = int.tryParse(value) ?? 0,
                         decoration: InputDecoration(labelText: 'Cantidad'),
                         keyboardType: TextInputType.number,
                       ),
                       TextField(
                         onChanged: (value) => goalUnit = value,
-                        decoration: InputDecoration(labelText: 'Unidad (ej. libros, páginas)'),
+                        decoration: InputDecoration(
+                            labelText: 'Unidad (ej. libros, páginas)'),
                       ),
                     ],
                   )
@@ -242,14 +253,18 @@ class _MainPageState extends State<MainPage> {
           TextButton(
             onPressed: () {
               if (goalName.isNotEmpty || selectedGoal != null) {
-                String finalGoalName = selectedType == 'Específica' ? goalName : selectedGoal!;
-                if (goalCategory == 'Cuantitativa' && goalQuantity > 0 && goalUnit.isNotEmpty) {
+                String finalGoalName =
+                    selectedType == 'Específica' ? goalName : selectedGoal!;
+                if (goalCategory == 'Cuantitativa' &&
+                    goalQuantity > 0 &&
+                    goalUnit.isNotEmpty) {
                   _addGoal(finalGoalName, goalQuantity, goalUnit);
                 } else if (goalCategory == 'Cualitativa') {
                   _addGoal(finalGoalName, isCompleted ? 'Sí' : 'No', '');
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text('Por favor, introduce una cantidad y unidad válida para la meta cuantitativa.'),
+                    content: Text(
+                        'Por favor, introduce una cantidad y unidad válida para la meta cuantitativa.'),
                   ));
                 }
                 Navigator.of(context).pop();
@@ -325,7 +340,8 @@ class _MainPageState extends State<MainPage> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text('Completar Meta'),
-        content: Text('¿Estás seguro de que deseas marcar esta meta como completada?'),
+        content: Text(
+            '¿Estás seguro de que deseas marcar esta meta como completada?'),
         actions: [
           TextButton(
             onPressed: () {
@@ -382,7 +398,8 @@ class _MainPageState extends State<MainPage> {
         return Theme(
           data: ThemeData.dark().copyWith(
             primaryColor: Colors.black,
-            colorScheme: ColorScheme.dark(primary: Colors.black, secondary: Colors.black),
+            colorScheme: ColorScheme.dark(
+                primary: Colors.black, secondary: Colors.black),
             buttonTheme: ButtonThemeData(textTheme: ButtonTextTheme.primary),
           ),
           child: child ?? SizedBox(),
@@ -392,7 +409,7 @@ class _MainPageState extends State<MainPage> {
 
     if (picked != null && picked != currentDate) {
       setState(() {
-        currentDate = picked; 
+        currentDate = picked;
       });
     }
   }
@@ -410,7 +427,7 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size; 
+    final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
       body: Stack(
@@ -424,9 +441,9 @@ class _MainPageState extends State<MainPage> {
                 SizedBox(height: screenSize.height * 0.02), // Smaller spacing
                 _buildHeader(),
                 SizedBox(height: screenSize.height * 0.02),
-                _buildStatsCard(screenSize), 
+                _buildStatsCard(screenSize),
                 SizedBox(height: screenSize.height * 0.02),
-                _buildGoalsCard(screenSize), 
+                _buildGoalsCard(screenSize),
                 SizedBox(height: screenSize.height * 0.02),
                 _buildStreakWidget(),
                 SizedBox(height: screenSize.height * 0.02),
@@ -439,33 +456,35 @@ class _MainPageState extends State<MainPage> {
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            label: '',
+            label: 'Home',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.list),
-            label: '',
+            label: 'Survey',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.attach_money),
-            label: '',
+            label: 'Gamification',
           ),
         ],
         onTap: (index) {
           if (index == 0) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => MainPage(username: widget.username)),
+              MaterialPageRoute(
+                  builder: (context) => MainPage(username: widget.username)),
             );
           } else if (index == 1) {
-            _navigateToSurveyPage(); 
+            _navigateToSurveyPage();
           } else if (index == 2) {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => GamificationPage(
-                streakDays: streakDays,
-                userPoints: totalPoints,
-                username: widget.username,
-              )),
+              MaterialPageRoute(
+                  builder: (context) => GamificationPage(
+                        streakDays: streakDays,
+                        userPoints: totalPoints,
+                        username: widget.username,
+                      )),
             );
           }
         },
@@ -474,14 +493,14 @@ class _MainPageState extends State<MainPage> {
   }
 
   Widget _buildGradientBackground() => Container(
-    decoration: BoxDecoration(
-      gradient: LinearGradient(
-        colors: [Color(0xFF92a8d1), Color(0xFFf7cac9)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-    ),
-  );
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF92a8d1), Color(0xFFf7cac9)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+      );
 
   Widget _buildHeader() {
     return SingleChildScrollView(
@@ -517,19 +536,19 @@ class _MainPageState extends State<MainPage> {
               SizedBox(height: 8),
               Text(
                 'Aquí están tus estadísticas y metas',
-                style: TextStyle(fontSize: 16, color: Colors.black),
+                style: TextStyle(fontSize: 10, color: Colors.black),
               ),
               SizedBox(height: 4),
               Text(
                 'Fecha actual: ${currentDate.toLocal().toString().split(' ')[0]}',
-                style: TextStyle(fontSize: 16),
+                style: TextStyle(fontSize: 14),
               ),
             ],
           ),
           SizedBox(width: 20),
           ElevatedButton(
             onPressed: () => _selectDate(context),
-            child: Icon(Icons.calendar_today, size: 24, color: Colors.black),
+            child: Icon(Icons.calendar_today, size: 18, color: Colors.black),
           ),
         ],
       ),
@@ -546,14 +565,17 @@ class _MainPageState extends State<MainPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Estadísticas',
-                style: TextStyle(fontSize: screenSize.width * 0.05, fontWeight: FontWeight.bold)),
+                style: TextStyle(
+                    fontSize: screenSize.width * 0.05,
+                    fontWeight: FontWeight.bold)),
             SizedBox(height: 10),
             ...userStatsController.userStats.take(5).map((stat) {
               return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Flexible(child: Text(stat['title'], softWrap: true)),
-                  Flexible(child: Text(stat['value'], textAlign: TextAlign.end)),
+                  Flexible(
+                      child: Text(stat['value'], textAlign: TextAlign.end)),
                 ],
               );
             }).toList(),
@@ -576,7 +598,9 @@ class _MainPageState extends State<MainPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('Metas',
-                    style: TextStyle(fontSize: screenSize.width * 0.05, fontWeight: FontWeight.bold)),
+                    style: TextStyle(
+                        fontSize: screenSize.width * 0.05,
+                        fontWeight: FontWeight.bold)),
                 IconButton(
                   icon: Icon(Icons.add, color: Colors.black),
                   onPressed: _showAddGoalDialog,
@@ -638,7 +662,8 @@ class _MainPageState extends State<MainPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.local_fire_department, color: Colors.black, size: 32),
+                Icon(Icons.local_fire_department,
+                    color: Colors.black, size: 32),
                 SizedBox(width: 8),
                 Text(
                   '$streakDays días',

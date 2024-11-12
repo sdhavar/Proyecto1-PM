@@ -19,3 +19,8 @@
 This project is licensed under the MIT License. See the LICENSE file for details.
 
 [Ver video en YouTube](https://www.youtube.com/watch?v=KvSwfqG_1es)
+
+
+# NOTA IMPORTANTE:
+
+El Archivo PDF con las pruebas adjuntas de las actividades de classroom se encuentra en la carpeta llamada "PDF DE PRUEBAS"

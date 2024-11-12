@@ -5,8 +5,7 @@ import 'survey_page.dart';
 import 'login_page.dart';
 import 'package:flutter_application_1/controllers/userstats_controller.dart';
 import 'package:flutter_application_1/controllers/streak_controller.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_application_1/controllers/firebase_controller.dart';
+
 
 class MainPage extends StatefulWidget {
   
@@ -655,4 +654,4 @@ class _MainPageState extends State<MainPage> {
       ],
     );
   }
-}
+} 

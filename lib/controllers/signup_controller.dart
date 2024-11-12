@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class SignupController {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
 
-  // Validación de correo con dominios permitidos
+  // Validate email with allowed domains
   String? validateEmail(String? value) {
     final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
     final allowedDomains = ['gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com', 'uninorte.edu.co'];
@@ -24,7 +25,7 @@ class SignupController {
     return null;
   }
 
-  // Validación de username y contraseña (mínimo 6 caracteres)
+  // Validate username (minimum 6 characters)
   String? validateUsername(String? value) {
     if (value == null || value.isEmpty) {
       return "Enter username";
@@ -34,6 +35,7 @@ class SignupController {
     return null;
   }
 
+  // Validate password (minimum 6 characters)
   String? validatePassword(String? value) {
     if (value == null || value.isEmpty) {
       return "Enter password";
@@ -43,33 +45,60 @@ class SignupController {
     return null;
   }
 
-  // Verificar si el correo ya está registrado
+  // Check if the email already exists
   Future<bool> checkIfEmailExists(String email) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String>? registeredEmails = prefs.getStringList('registeredEmails');
-    if (registeredEmails != null && registeredEmails.contains(email)) {
-      return true;
+    String? usersJson = prefs.getString('users');
+    
+    if (usersJson != null) {
+      List<dynamic> usersList = jsonDecode(usersJson);
+      for (var user in usersList) {
+        if (user['email'] == email) {
+          return true; // Email already registered
+        }
+      }
     }
     return false;
   }
 
-  // Guardar credenciales en SharedPreferences
+  // Check if the username already exists
+  Future<bool> checkIfUsernameExists(String username) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? usersJson = prefs.getString('users');
+    
+    if (usersJson != null) {
+      List<dynamic> usersList = jsonDecode(usersJson);
+      for (var user in usersList) {
+        if (user['username'] == username) {
+          return true; // Username already registered
+        }
+      }
+    }
+    return false;
+  }
+
+  // Save user credentials in SharedPreferences
   Future<void> registerUser() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String>? registeredEmails = prefs.getStringList('registeredEmails') ?? [];
-    registeredEmails.add(emailController.text);
-    await prefs.setStringList('registeredEmails', registeredEmails);
-    await prefs.setString('username', usernameController.text);
-    await prefs.setString('password', passwordController.text);
-    await prefs.setString('email', emailController.text);
+    String? usersJson = prefs.getString('users');
+    List<Map<String, dynamic>> usersList = [];
+
+    if (usersJson != null) {
+      usersList = List<Map<String, dynamic>>.from(jsonDecode(usersJson));
+    }
+    
+    // Add the new user details
+    usersList.add({
+      'email': emailController.text,
+      'username': usernameController.text,
+      'password': passwordController.text,
+    });
+
+    // Save the updated list back to SharedPreferences
+    await prefs.setString('users', jsonEncode(usersList));
   }
 
-  // Método para extraer el nombre de usuario del correo
-  String extractUsername(String email) {
-    return email.split('@')[0]; // Extract the part before the '@'
-  }
-
-  // Método para liberar los controladores
+  // Dispose of the controllers
   void dispose() {
     usernameController.dispose();
     passwordController.dispose();

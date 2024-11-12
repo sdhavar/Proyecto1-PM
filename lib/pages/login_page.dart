@@ -286,5 +286,5 @@ class Circle extends StatelessWidget {
         shape: BoxShape.circle,
       ),
     );
-  }
+  } 
 }

@@ -10,8 +10,6 @@ class SignupPage extends StatefulWidget {
 
 class _SignupPageState extends State<SignupPage> {
   final _formKey = GlobalKey<FormState>();
-
-  // Instance of the Signup controller
   final SignupController _signupController = SignupController();
 
   @override
@@ -121,20 +119,20 @@ class _SignupPageState extends State<SignupPage> {
                     FormInput(
                       icon: Icons.person,
                       hint: 'USERNAME',
-                      controller: _signupController.usernameController, // Use the controller
+                      controller: _signupController.usernameController,
                       validator: _signupController.validateUsername,
                     ),
                     FormInput(
                       icon: Icons.lock,
                       hint: 'PASSWORD',
                       obscureText: true,
-                      controller: _signupController.passwordController, // Use the controller
+                      controller: _signupController.passwordController,
                       validator: _signupController.validatePassword,
                     ),
                     FormInput(
                       icon: Icons.email,
                       hint: 'EMAIL ADDRESS',
-                      controller: _signupController.emailController, // Use the controller
+                      controller: _signupController.emailController,
                       validator: _signupController.validateEmail,
                     ),
                     SizedBox(height: 20),
@@ -142,27 +140,29 @@ class _SignupPageState extends State<SignupPage> {
                       onTap: () async {
                         if (_formKey.currentState!.validate()) {
                           try {
-                            // Check if the email is already registered
+                            // Check if the email or username is already registered
                             bool emailExists = await _signupController.checkIfEmailExists(_signupController.emailController.text);
+                            bool usernameExists = await _signupController.checkIfUsernameExists(_signupController.usernameController.text);
+                            
                             if (emailExists) {
-                              throw Exception('Este correo ya está registrado. Por favor, elige otro.');
+                              throw Exception('This email is already registered. Please choose another.');
+                            }
+                            if (usernameExists) {
+                              throw Exception('This username is already taken. Please choose another.');
                             }
 
                             // Save credentials
                             await _signupController.registerUser();
 
-                            // Extract username from email
-                            String username = _signupController.extractUsername(_signupController.emailController.text);
-
-                            // Navigate to MainPage passing the registered username
+                            // Navigate to MainPage after successful registration
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => MainPage(username: username),
+                                builder: (context) => MainPage(username: _signupController.usernameController.text),
                               ),
                             );
                           } catch (e) {
-                            // Show error message if the email is already registered
+                            // Show error message
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(e.toString()),

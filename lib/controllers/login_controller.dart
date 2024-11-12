@@ -1,49 +1,89 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class LoginController {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  // Cargar credenciales desde SharedPreferences
+  // Load all user credentials from SharedPreferences
   Future<void> loadCredentials() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? email = prefs.getString('email');
-    String? password = prefs.getString('password');
+    String? usersJson = prefs.getString('users');
 
-    if (email != null && password != null) {
-      emailController.text = email;
-      passwordController.text = password;
+    if (usersJson != null) {
+      List<dynamic> usersList = jsonDecode(usersJson);
+      for (var user in usersList) {
+        String email = user['email'];
+        String password = user['password'];
+        
+        // Optionally preload the first set of credentials
+        if (emailController.text.isEmpty) {
+          emailController.text = email;
+          passwordController.text = password;
+        }
+      }
     }
   }
 
-  // Guardar credenciales en SharedPreferences
+  // Save a new user credential
   Future<void> saveCredentials(String email, String password) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('email', email);
-    await prefs.setString('password', password);
-  }
+    String? usersJson = prefs.getString('users');
+    List<Map<String, String>> usersList = [];
 
-  // Validar credenciales de inicio de sesión
-  Future<bool> validateLogin(String email, String password) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? storedEmail = prefs.getString('email');
-    String? storedPassword = prefs.getString('password');
-
-    if (storedEmail == null || storedPassword == null) {
-      return false; // No se encontraron credenciales almacenadas
+    if (usersJson != null) {
+      usersList = List<Map<String, String>>.from(jsonDecode(usersJson));
     }
 
-    return email == storedEmail && password == storedPassword;
+    // Check if the user already exists and either update or add new credentials
+    bool userExists = false;
+    for (var user in usersList) {
+      if (user['email'] == email) {
+        user['password'] = password; // Update password for existing user
+        userExists = true;
+        break;
+      }
+    }
+    if (!userExists) {
+      usersList.add({'email': email, 'password': password}); // Add new user
+    }
+
+    // Save the updated list back to SharedPreferences
+    await prefs.setString('users', jsonEncode(usersList));
   }
 
-  // Limpiar los controladores
+  // Validate login credentials for all stored users
+  Future<bool> validateLogin(String email, String password) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? usersJson = prefs.getString('users');
+
+    if (usersJson == null) {
+      return false; // No users stored
+    }
+
+    List<dynamic> usersList = jsonDecode(usersJson);
+    for (var user in usersList) {
+      if (user['email'] == email && user['password'] == password) {
+        return true; // Credentials are valid
+      }
+    }
+    return false; // Invalid credentials
+  }
+
+  // Clear the controllers
   void clearControllers() {
     emailController.clear();
     passwordController.clear();
   }
 
-  // Dispose de los controladores
+  // Method to log out (optionally clear specific user)
+  Future<void> logout() async {
+    // Implementation of logout can be done based on your needs
+    clearControllers(); // Clear the controllers
+  }
+
+  // Dispose of the controllers
   void dispose() {
     emailController.dispose();
     passwordController.dispose();

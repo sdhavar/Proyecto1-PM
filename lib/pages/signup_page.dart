@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'main_page.dart';
-import 'package:flutter_application_1/controllers/signup_controller.dart'; // Importar el controlador
+import 'package:flutter_application_1/controllers/signup_controller.dart';
+import 'package:flutter_application_1/controllers/firebase_controller.dart'; // Import the controller
 
 class SignupPage extends StatefulWidget {
   @override
@@ -10,12 +11,12 @@ class SignupPage extends StatefulWidget {
 class _SignupPageState extends State<SignupPage> {
   final _formKey = GlobalKey<FormState>();
 
-  // Instancia del controlador de registro
+  // Instance of the Signup controller
   final SignupController _signupController = SignupController();
 
   @override
   void dispose() {
-    _signupController.dispose(); // Liberar recursos del controlador
+    _signupController.dispose(); // Release controller resources
     super.dispose();
   }
 
@@ -24,13 +25,13 @@ class _SignupPageState extends State<SignupPage> {
     return Scaffold(
       body: Stack(
         children: [
-          // Fondo
+          // Background Color
           Container(
             color: Color(0xFF4ba3c7),
             height: double.infinity,
             width: double.infinity,
           ),
-          // Círculos decorativos
+          // Decorative Circles
           Positioned(
             top: 10,
             left: 10,
@@ -63,7 +64,7 @@ class _SignupPageState extends State<SignupPage> {
               color: Color(0xFF0D47A1),
             ),
           ),
-          // Botón de Login
+          // Login Button
           Positioned(
             top: 20,
             right: 20,
@@ -88,7 +89,7 @@ class _SignupPageState extends State<SignupPage> {
               ),
             ),
           ),
-          // Formulario de Registro
+          // Registration Form
           Center(
             child: Container(
               width: 300,
@@ -120,20 +121,20 @@ class _SignupPageState extends State<SignupPage> {
                     FormInput(
                       icon: Icons.person,
                       hint: 'USERNAME',
-                      controller: _signupController.usernameController, // Usar el controlador
+                      controller: _signupController.usernameController, // Use the controller
                       validator: _signupController.validateUsername,
                     ),
                     FormInput(
                       icon: Icons.lock,
                       hint: 'PASSWORD',
                       obscureText: true,
-                      controller: _signupController.passwordController, // Usar el controlador
+                      controller: _signupController.passwordController, // Use the controller
                       validator: _signupController.validatePassword,
                     ),
                     FormInput(
                       icon: Icons.email,
                       hint: 'EMAIL ADDRESS',
-                      controller: _signupController.emailController, // Usar el controlador
+                      controller: _signupController.emailController, // Use the controller
                       validator: _signupController.validateEmail,
                     ),
                     SizedBox(height: 20),
@@ -141,26 +142,27 @@ class _SignupPageState extends State<SignupPage> {
                       onTap: () async {
                         if (_formKey.currentState!.validate()) {
                           try {
-                            // Verificar si el correo ya está registrado
+                            // Check if the email is already registered
                             bool emailExists = await _signupController.checkIfEmailExists(_signupController.emailController.text);
                             if (emailExists) {
                               throw Exception('Este correo ya está registrado. Por favor, elige otro.');
                             }
 
-                            // Guardar credenciales
+                            // Save credentials
                             await _signupController.registerUser();
 
-                            // Navegar a MainPage pasando el nombre de usuario registrado
+                            // Extract username from email
+                            String username = _signupController.extractUsername(_signupController.emailController.text);
+
+                            // Navigate to MainPage passing the registered username
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => MainPage(
-                                    username: _signupController
-                                        .usernameController.text),
+                                builder: (context) => MainPage(username: username),
                               ),
                             );
                           } catch (e) {
-                            // Mostrar mensaje de error si el correo ya está registrado
+                            // Show error message if the email is already registered
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(e.toString()),

@@ -5,10 +5,16 @@ import 'survey_page.dart';
 import 'login_page.dart';
 import 'package:flutter_application_1/controllers/userstats_controller.dart';
 import 'package:flutter_application_1/controllers/streak_controller.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_application_1/controllers/firebase_controller.dart';
 
 class MainPage extends StatefulWidget {
-  final String username;
+  
+
+  final String username; // This will now show the username
   MainPage({required this.username});
+
+
 
   @override
   _MainPageState createState() => _MainPageState();
@@ -33,8 +39,7 @@ class _MainPageState extends State<MainPage> {
   int totalPoints = 0;
   DateTime currentDate = DateTime.now();
 
-  _MainPageState()
-      : streakController = StreakController(currentDate: DateTime.now());
+  _MainPageState() : streakController = StreakController(currentDate: DateTime.now());
 
   @override
   void initState() {
@@ -59,10 +64,8 @@ class _MainPageState extends State<MainPage> {
   void _advanceDays(int days) {
     setState(() {
       streakController.advanceDays(days);
-      currentDate = streakController.currentDate;
       userStatsController.resetStats();
-      if (streakController.streakDays > 0 &&
-          streakController.streakDays % 3 == 0) {
+      if (streakController.streakDays > 0 && streakController.streakDays % 3 == 0) {
         totalPoints += 50;
         _showStreakNotification();
       }
@@ -75,8 +78,7 @@ class _MainPageState extends State<MainPage> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text('¡Felicidades!'),
-        content: Text(
-            'Has ganado 50 puntos por tu racha de ${streakController.streakDays} días.'),
+        content: Text('Has ganado 50 puntos por tu racha de ${streakController.streakDays} días.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -99,8 +101,7 @@ class _MainPageState extends State<MainPage> {
 
   void _addGoal(String name, dynamic value, String unit) {
     setState(() {
-      userStatsController.userStats
-          .add({'title': name, 'value': '$value $unit'});
+      userStatsController.userStats.add({'title': name, 'value': '$value $unit'});
     });
   }
 
@@ -170,9 +171,7 @@ class _MainPageState extends State<MainPage> {
                           margin: EdgeInsets.symmetric(vertical: 5),
                           decoration: BoxDecoration(
                             border: Border.all(
-                              color: selectedGoal == goal['name']
-                                  ? Colors.blue
-                                  : Colors.grey,
+                              color: selectedGoal == goal['name'] ? Colors.blue : Colors.grey,
                             ),
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -218,15 +217,13 @@ class _MainPageState extends State<MainPage> {
                   Column(
                     children: [
                       TextField(
-                        onChanged: (value) =>
-                            goalQuantity = int.tryParse(value) ?? 0,
+                        onChanged: (value) => goalQuantity = int.tryParse(value) ?? 0,
                         decoration: InputDecoration(labelText: 'Cantidad'),
                         keyboardType: TextInputType.number,
                       ),
                       TextField(
                         onChanged: (value) => goalUnit = value,
-                        decoration: InputDecoration(
-                            labelText: 'Unidad (ej. libros, páginas)'),
+                        decoration: InputDecoration(labelText: 'Unidad (ej. libros, páginas)'),
                       ),
                     ],
                   )
@@ -253,18 +250,14 @@ class _MainPageState extends State<MainPage> {
           TextButton(
             onPressed: () {
               if (goalName.isNotEmpty || selectedGoal != null) {
-                String finalGoalName =
-                    selectedType == 'Específica' ? goalName : selectedGoal!;
-                if (goalCategory == 'Cuantitativa' &&
-                    goalQuantity > 0 &&
-                    goalUnit.isNotEmpty) {
+                String finalGoalName = selectedType == 'Específica' ? goalName : selectedGoal!;
+                if (goalCategory == 'Cuantitativa' && goalQuantity > 0 && goalUnit.isNotEmpty) {
                   _addGoal(finalGoalName, goalQuantity, goalUnit);
                 } else if (goalCategory == 'Cualitativa') {
                   _addGoal(finalGoalName, isCompleted ? 'Sí' : 'No', '');
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text(
-                        'Por favor, introduce una cantidad y unidad válida para la meta cuantitativa.'),
+                    content: Text('Por favor, introduce una cantidad y unidad válida para la meta cuantitativa.'),
                   ));
                 }
                 Navigator.of(context).pop();
@@ -340,8 +333,7 @@ class _MainPageState extends State<MainPage> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text('Completar Meta'),
-        content: Text(
-            '¿Estás seguro de que deseas marcar esta meta como completada?'),
+        content: Text('¿Estás seguro de que deseas marcar esta meta como completada?'),
         actions: [
           TextButton(
             onPressed: () {
@@ -394,17 +386,6 @@ class _MainPageState extends State<MainPage> {
       initialDate: currentDate,
       firstDate: DateTime(2000),
       lastDate: DateTime.now(),
-      builder: (BuildContext context, Widget? child) {
-        return Theme(
-          data: ThemeData.dark().copyWith(
-            primaryColor: Colors.black,
-            colorScheme: ColorScheme.dark(
-                primary: Colors.black, secondary: Colors.black),
-            buttonTheme: ButtonThemeData(textTheme: ButtonTextTheme.primary),
-          ),
-          child: child ?? SizedBox(),
-        );
-      },
     );
 
     if (picked != null && picked != currentDate) {
@@ -438,7 +419,7 @@ class _MainPageState extends State<MainPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                SizedBox(height: screenSize.height * 0.02), // Smaller spacing
+                SizedBox(height: screenSize.height * 0.02),
                 _buildHeader(),
                 SizedBox(height: screenSize.height * 0.02),
                 _buildStatsCard(screenSize),
@@ -519,7 +500,7 @@ class _MainPageState extends State<MainPage> {
                   ),
                   SizedBox(height: 4),
                   Text(
-                    '¡Hola ${widget.username}! ',
+                    '¡Hola ${widget.username}! ', // Display username from email
                     style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -662,8 +643,7 @@ class _MainPageState extends State<MainPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.local_fire_department,
-                    color: Colors.black, size: 32),
+                Icon(Icons.local_fire_department, color: Colors.black, size: 32),
                 SizedBox(width: 8),
                 Text(
                   '$streakDays días',

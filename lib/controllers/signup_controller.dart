@@ -8,14 +8,8 @@ class SignupController {
 
   // Validación de correo con dominios permitidos
   String? validateEmail(String? value) {
-    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
-    final allowedDomains = [
-      'gmail.com',
-      'hotmail.com',
-      'outlook.com',
-      'yahoo.com',
-      'uninorte.edu.co'
-    ];
+    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
+    final allowedDomains = ['gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com', 'uninorte.edu.co'];
 
     if (value == null || value.isEmpty) {
       return "Enter email address";
@@ -68,6 +62,11 @@ class SignupController {
     await prefs.setString('username', usernameController.text);
     await prefs.setString('password', passwordController.text);
     await prefs.setString('email', emailController.text);
+  }
+
+  // Método para extraer el nombre de usuario del correo
+  String extractUsername(String email) {
+    return email.split('@')[0]; // Extract the part before the '@'
   }
 
   // Método para liberar los controladores

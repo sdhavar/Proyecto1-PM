@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'main_page.dart';
 import 'signup_page.dart';
-import 'package:flutter_application_1/controllers/login_controller.dart'; // Importar el controlador
+import 'package:flutter_application_1/controllers/login_controller.dart'; // Import the controller
 
 void main() {
   runApp(LoginPage());
@@ -24,21 +24,20 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-
   final _formKey = GlobalKey<FormState>();
 
-  // Instancia del controlador de login
+  // Instance of the LoginController
   final LoginController _loginController = LoginController();
 
   @override
   void initState() {
     super.initState();
-    _loginController.loadCredentials(); // Cargar credenciales guardadas
+    _loginController.loadCredentials(); // Load saved credentials
   }
 
   @override
   void dispose() {
-    _loginController.dispose(); // Liberar los recursos del controlador
+    _loginController.dispose(); // Release resources of the controller
     super.dispose();
   }
 
@@ -46,13 +45,13 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // Fondo
+        // Background
         Container(
           color: Color(0xFF4ba3c7),
           height: double.infinity,
           width: double.infinity,
         ),
-        // Círculos decorativos
+        // Decorative circles
         Positioned(
           top: 50,
           left: 20,
@@ -85,7 +84,7 @@ class _LoginScreenState extends State<LoginScreen> {
             color: Color(0xFF0056b3),
           ),
         ),
-        // Nombre de la app
+        // Application name
         Positioned(
           top: 40,
           left: 20,
@@ -98,7 +97,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         ),
-        // Contenido del login
+        // Login content
         Center(
           child: Form(
             key: _formKey,
@@ -116,13 +115,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 SizedBox(height: 40),
                 LoginInput(
                   icon: Icons.person,
-                  hint: 'USERNAME',
-                  controller: _loginController.usernameController, // Usar el controlador
+                  hint: 'EMAIL',
+                  controller: _loginController.emailController, // Use the controller
                   validator: (value) {
                     if (value!.isEmpty) {
-                      return "Enter username";
+                      return "Enter email";
                     } else if (value.length < 6) {
-                      return "Username must have at least 6 characters";
+                      return "Email must have at least 6 characters";
                     }
                     return null;
                   },
@@ -132,7 +131,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   icon: Icons.lock,
                   hint: 'PASSWORD',
                   obscureText: true,
-                  controller: _loginController.passwordController, // Usar el controlador
+                  controller: _loginController.passwordController, // Use the controller
                   validator: (value) {
                     if (value!.isEmpty) {
                       return "Enter password";
@@ -149,23 +148,27 @@ class _LoginScreenState extends State<LoginScreen> {
                     InkWell(
                       onTap: () async {
                         if (_formKey.currentState!.validate()) {
-                          String username = _loginController.usernameController.text;
+                          String email = _loginController.emailController.text;
+
+                          // Extract the username from the email
+                          String username = email.split('@')[0];
+
                           String password = _loginController.passwordController.text;
 
-                          // Validar las credenciales con el controlador
-                          bool isValid = await _loginController.validateLogin(username, password);
+                          // Validate the credentials with the controller
+                          bool isValid = await _loginController.validateLogin(email, password);
 
                           if (isValid) {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) =>
-                                      MainPage(username: username)),
+                                      MainPage(username: username)), // Use the extracted username
                             );
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text("Invalid username or password"),
+                                content: Text("Invalid email or password"),
                                 backgroundColor: Colors.red,
                               ),
                             );
